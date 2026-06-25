@@ -1,0 +1,2070 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="h-full dark" id="htmlRoot">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyLM // Cognitive Workspace</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for crisp academics & Arabic support -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Tajawal:wght@400;500;700;800&family=Readex+Pro:wght@400;500;600;700&family=Lexend:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- PDF.js for client-side rendering & raw text extraction -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {}
+            }
+        };
+
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+    </script>
+    <style>
+        /* OpenDyslexic font-face loading via jsdelivr */
+        @font-face {
+            font-family: 'OpenDyslexic';
+            src: url('https://cdn.jsdelivr.net/gh/antijingoist/open-dyslexic/woff/OpenDyslexic-Regular.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'OpenDyslexic';
+            src: url('https://cdn.jsdelivr.net/gh/antijingoist/open-dyslexic/woff/OpenDyslexic-Bold.woff') format('woff');
+            font-weight: bold;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'OpenDyslexic';
+            src: url('https://cdn.jsdelivr.net/gh/antijingoist/open-dyslexic/woff/OpenDyslexic-Italic.woff') format('woff');
+            font-weight: normal;
+            font-style: italic;
+            font-display: swap;
+        }
+
+        body {
+            background-color: #f8fafc;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(34, 211, 238, 0.08) 0, transparent 50%);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        /* Font Application Classes */
+        .font-standard-en { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-standard-ar { font-family: 'Tajawal', sans-serif; }
+
+        /* Highly-accessible dyslexia typography configurations override - Exclude FontAwesome classes explicitly */
+        body.font-dyslexic-en *:not(.fa):not(.fab):not(.fad):not(.fal):not(.far):not(.fas):not(.fa-solid):not(.fa-regular):not(.fa-brands):not([class^="fa-"]):not([class*=" fa-"]) {
+            font-family: 'OpenDyslexic', 'Lexend', sans-serif !important;
+            letter-spacing: 0.06em !important;
+            word-spacing: 0.18em !important;
+            line-height: 1.8 !important;
+        }
+        body.font-maqroo-ar *:not(.fa):not(.fab):not(.fad):not(.fal):not(.far):not(.fas):not(.fa-solid):not(.fa-regular):not(.fa-brands):not([class^="fa-"]):not([class*=" fa-"]) {
+            font-family: 'Readex Pro', 'Tajawal', sans-serif !important;
+            font-variant-ligatures: none !important;
+            letter-spacing: 0.08em !important;
+            word-spacing: 0.22em !important;
+            line-height: 2.2 !important;
+        }
+
+        /* Explicit preservation and recovery of FontAwesome glyph rendering family */
+        body.font-dyslexic-en .fa, body.font-dyslexic-en .fas, body.font-dyslexic-en .far, body.font-dyslexic-en .fab, body.font-dyslexic-en .fa-solid, body.font-dyslexic-en .fa-regular,
+        body.font-maqroo-ar .fa, body.font-maqroo-ar .fas, body.font-maqroo-ar .far, body.font-maqroo-ar .fab, body.font-maqroo-ar .fa-solid, body.font-maqroo-ar .fa-regular,
+        body.font-dyslexic-en [class*="fa-"], body.font-maqroo-ar [class*="fa-"] {
+            font-family: "Font Awesome 6 Free" !important;
+            font-weight: 900 !important;
+            letter-spacing: normal !important;
+            word-spacing: normal !important;
+            line-height: 1 !important;
+        }
+
+        /* Shield coding block regions from being overridden by Dyslexia fonts */
+        body.font-dyslexic-en .font-mono, body.font-dyslexic-en code, body.font-dyslexic-en pre,
+        body.font-maqroo-ar .font-mono, body.font-maqroo-ar code, body.font-maqroo-ar pre {
+            font-family: 'JetBrains Mono', monospace !important;
+            letter-spacing: normal !important;
+            word-spacing: normal !important;
+            line-height: normal !important;
+        }
+
+        .dark body {
+            background-color: #030712;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.05) 0, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(34, 211, 238, 0.05) 0, transparent 50%);
+        }
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .dark ::-webkit-scrollbar-track {
+            background: #090d16;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+        .action-btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .action-btn:hover {
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col overflow-hidden text-slate-800 dark:text-slate-200 font-standard-en">
+
+    <!-- TOP HEADER -->
+    <header class="h-16 border-b border-slate-200 dark:border-slate-800 bg-slate-50/90 dark:bg-slate-950/90 backdrop-blur-md flex items-center justify-between px-6 z-10 shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="bg-indigo-100 dark:bg-indigo-600/20 text-cyan-600 dark:text-cyan-400 p-2 rounded-lg border border-cyan-500/30">
+                <i class="fa-solid fa-graduation-cap text-lg animate-pulse"></i>
+            </div>
+            <div class="flex items-baseline gap-2">
+                <span id="notebookTitle" data-i18n="title" class="font-extrabold tracking-wider text-xl text-slate-900 dark:text-white font-sans cursor-pointer focus:outline-none focus:ring-1 focus:ring-cyan-400/50 px-1 rounded" contenteditable="true">StudyLM Workspace</span>
+                <span class="hidden md:inline font-mono text-xs text-slate-500 border-s border-slate-300 dark:border-slate-800 ps-3 ms-1">StudyLM OS</span>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <!-- User API Key Input and Get Key Button -->
+            <div class="relative flex items-center gap-2 hidden sm:flex">
+                <div class="relative flex items-center">
+                    <i class="fa-solid fa-key absolute start-3 text-[10px] text-slate-400 dark:text-slate-500"></i>
+                    <input type="password" id="userApiKey" data-i18n-ph="apiKeyPlaceholder" placeholder="Gemini API Key" class="ps-8 pe-3 py-1.5 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg text-slate-700 dark:text-slate-300 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 w-32 transition-all shadow-sm" />
+                </div>
+                <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1.5 bg-gradient-to-r from-cyan-600 to-indigo-650 hover:from-cyan-500 hover:to-indigo-550 text-white text-[11px] font-bold rounded-lg flex items-center gap-1.5 shadow-sm transition-all whitespace-nowrap">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                    <span data-i18n="getApiKey">Get API Key</span>
+                </a>
+            </div>
+            
+            <div class="flex items-center gap-2 font-mono text-xs bg-white dark:bg-slate-900 border border-indigo-500/30 px-3 py-1.5 rounded-lg shadow-sm">
+                <span class="w-2 h-2 rounded-full bg-cyan-500 dark:bg-cyan-400 animate-ping"></span>
+                <span class="text-slate-500 dark:text-slate-400" data-i18n="engine">ENGINE:</span>
+                <span class="text-cyan-600 dark:text-cyan-400 font-bold">GEMINI 2.5</span>
+            </div>
+            
+            <!-- Settings Toggle -->
+            <button onclick="toggleSettingsModal(true)" class="flex items-center justify-center w-8 h-8 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-cyan-500 transition-colors shadow-sm">
+                <i class="fa-solid fa-gear"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN INTERFACE: NotebookLM Columns -->
+    <main class="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
+
+        <!-- COLUMN 1: SOURCES (LEFT PANEL) -->
+        <section id="sourcesPanel" class="w-full lg:w-80 border-b lg:border-b-0 lg:border-e border-slate-200 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-950/40 backdrop-blur-sm flex flex-col shrink-0 overflow-hidden">
+            
+            <!-- Ingestions -->
+            <div class="p-4 border-b border-slate-200 dark:border-slate-800 space-y-3 shrink-0">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest" data-i18n="sources">Sources</span>
+                    <span class="font-mono text-[10px] text-slate-400 dark:text-slate-500">v3.5</span>
+                </div>
+
+                <!-- Add Sources Action Bar -->
+                <label for="fileUploader" class="group flex flex-col items-center justify-center border border-dashed border-slate-300 dark:border-slate-700 hover:border-cyan-500/50 rounded-xl p-4 bg-white/50 dark:bg-slate-900/20 hover:bg-slate-100 dark:hover:bg-slate-900/50 cursor-pointer transition-all shadow-sm">
+                    <input type="file" id="fileUploader" class="hidden" accept=".txt,.md,.pdf,.png,.jpg,.jpeg,.doc,.docx" multiple>
+                    <div class="flex items-center gap-2 text-slate-600 dark:text-slate-300 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
+                        <i class="fa-solid fa-plus text-sm"></i>
+                        <span class="text-xs font-bold" data-i18n="addSources">Add sources</span>
+                    </div>
+                    <p class="text-[9px] text-slate-400 dark:text-slate-500 font-mono mt-1">PDF, JPG, PNG, TXT, MD</p>
+                </label>
+
+                <!-- Input Raw Notes directly -->
+                <button onclick="toggleRawNoteModal(true)" class="action-btn w-full py-2 px-3 text-xs bg-indigo-50/80 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/20 rounded-lg flex items-center justify-center gap-2 shadow-sm">
+                    <i class="fa-solid fa-keyboard text-xs"></i> <span data-i18n="pasteNotes">Paste Raw Notes</span>
+                </button>
+            </div>
+
+            <!-- Interactive Sources Filter & Count -->
+            <div class="px-4 pt-3 pb-1 flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold">
+                    <input type="checkbox" id="selectAllSources" checked onchange="toggleSelectAllSources(this)" class="accent-cyan-500 dark:accent-cyan-400">
+                    <label for="selectAllSources" class="cursor-pointer" data-i18n="selectAll">Select all</label>
+                </div>
+                <span id="activeSourcesIndicator" class="font-mono text-[11px] text-cyan-700 dark:text-cyan-400 bg-cyan-100 dark:bg-cyan-950/40 px-2 py-0.5 rounded border border-cyan-200 dark:border-cyan-500/10">0 / 0 active</span>
+            </div>
+
+            <!-- Dynamic Source List Container -->
+            <div class="flex-1 px-4 pb-4 overflow-y-auto space-y-2 mt-2">
+                <div id="vaultList" class="space-y-2">
+                    <!-- Dynamic Source items render here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- COLUMN 2: ACTIVE CHAT CONTEXT FEED (MIDDLE PANEL) -->
+        <section id="chatPanel" class="flex-1 border-b lg:border-b-0 lg:border-e border-slate-200 dark:border-slate-800 bg-slate-100/50 dark:bg-slate-900/10 flex flex-col overflow-hidden min-h-[400px] lg:min-h-0">
+            
+            <!-- Chat Feed Header -->
+            <div class="h-12 border-b border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-950/85 flex items-center justify-between px-6 shrink-0 shadow-sm z-10">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-comments text-cyan-600 dark:text-cyan-400 text-sm"></i>
+                    <span id="chatTitle" data-i18n="activeConsultation" class="text-xs font-bold uppercase tracking-widest text-slate-700 dark:text-slate-300">Active Consultation</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="clearChatFeed()" class="text-xs text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 flex items-center gap-1">
+                        <i class="fa-solid fa-trash text-[10px]"></i> <span data-i18n="clearChat">Clear Chat</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Live Message Feed -->
+            <div id="chatFeed" class="flex-1 p-6 space-y-5 overflow-y-auto bg-slate-50/40 dark:bg-slate-950/20">
+                <!-- Welcome system bubble -->
+                <div class="flex gap-4 max-w-[90%] me-auto items-start">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center border border-indigo-200 dark:border-indigo-500/30 shrink-0 shadow-sm">
+                        <i class="fa-solid fa-robot text-xs"></i>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl rounded-ts-none p-4 text-slate-700 dark:text-slate-300 shadow-sm">
+                        <p class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 mb-1 tracking-wider uppercase">GEMINI 2.5 FLASH</p>
+                        <p class="text-xs leading-relaxed" data-i18n="welcomeMsg">System loaded successfully. Upload your files on the left and enter your API Key in the top right. I am ready to calibrate.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Suggested prompt guides -->
+            <div id="smartSuggestions" class="px-6 py-2.5 bg-white/60 dark:bg-slate-950/60 border-t border-slate-200 dark:border-slate-900 overflow-x-auto whitespace-nowrap flex gap-1.5 shrink-0">
+                <button onclick="useSuggestedPrompt(i18nDict[currentLang].prompt1)" class="px-3 py-1.5 text-[11px] font-semibold border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50 dark:bg-slate-900 rounded-lg text-slate-600 dark:text-slate-300 hover:text-cyan-600 dark:hover:text-cyan-400 transition-all shadow-sm"><span data-i18n="sugg1">Core Takeaways</span></button>
+                <button onclick="useSuggestedPrompt(i18nDict[currentLang].prompt2)" class="px-3 py-1.5 text-[11px] font-semibold border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50 dark:bg-slate-900 rounded-lg text-slate-600 dark:text-slate-300 hover:text-cyan-600 dark:hover:text-cyan-400 transition-all shadow-sm"><span data-i18n="sugg2">Test Scenarios</span></button>
+                <button onclick="useSuggestedPrompt(i18nDict[currentLang].prompt3)" class="px-3 py-1.5 text-[11px] font-semibold border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50 dark:bg-slate-900 rounded-lg text-slate-600 dark:text-slate-300 hover:text-cyan-600 dark:hover:text-cyan-400 transition-all shadow-sm"><span data-i18n="sugg3">Explain Terminology</span></button>
+            </div>
+
+            <!-- Chat terminal input -->
+            <div class="p-4 border-t border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-950/85 shrink-0">
+                <form id="chatForm" onsubmit="handleSendChat(event)" class="flex gap-2.5 relative">
+                    <div class="flex-1 relative flex items-center bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl px-3 focus-within:border-cyan-500/50 shadow-inner">
+                        <!-- Source count badge on input -->
+                        <span id="inputSourcesTag" class="font-mono text-[10px] font-bold bg-cyan-100 dark:bg-cyan-950 text-cyan-700 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-500/30 px-2 py-0.5 rounded me-2 shrink-0">0 sources</span>
+                        <textarea id="chatInput" data-i18n-ph="chatPlaceholder" placeholder="Ask a question..." class="flex-1 bg-transparent py-3 text-xs text-slate-900 dark:text-white focus:outline-none resize-none font-sans" rows="1" onkeydown="handleTextareaEnter(event)"></textarea>
+                    </div>
+                    <button type="submit" id="chatSendBtn" class="action-btn w-10 h-10 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center shrink-0 shadow-lg">
+                        <i class="fa-solid fa-arrow-up text-sm"></i>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- COLUMN 3: STUDIO & ACTIVE WORKSPACE VIEWER (RIGHT PANEL) -->
+        <section id="rightPanel" class="w-full lg:w-[450px] border-t lg:border-t-0 border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex flex-col shrink-0 h-[650px] lg:h-auto overflow-hidden">
+            
+            <!-- Tab controllers with Document Name indicator inside -->
+            <div class="h-12 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex items-center justify-between px-4 shrink-0 gap-1.5 z-10">
+                <div class="flex items-center gap-1.5">
+                    <button id="tabBtn-reader" onclick="switchRightTab('reader')" class="action-btn px-3 py-1.5 text-xs font-bold rounded-lg bg-white dark:bg-slate-900 text-cyan-600 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-500/20 flex items-center gap-1.5 shadow-sm">
+                        <i class="fa-solid fa-file-invoice"></i> <span data-i18n="workspaceReader">Workspace Reader</span>
+                    </button>
+                    <button id="tabBtn-studio" onclick="switchRightTab('studio')" class="action-btn px-3 py-1.5 text-xs font-bold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900/40 flex items-center gap-1.5 transition-all">
+                        <i class="fa-solid fa-cubes"></i> <span data-i18n="studioTools">Studio Tools</span>
+                    </button>
+                </div>
+                <span id="activeWorkspaceDocName" class="font-mono text-[11px] text-slate-500 dark:text-slate-400 italic max-w-[120px] truncate block" dir="ltr">// Init</span>
+            </div>
+
+            <!-- Tab 1 content: Active workspace document reader (Page by page PDF) -->
+            <div id="tabContent-reader" class="flex-1 p-5 overflow-y-auto bg-slate-100/50 dark:bg-slate-900/10 flex flex-col">
+                <div id="activeDocView" class="hidden flex-1 flex flex-col">
+                    <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 mb-4 shrink-0">
+                        <h2 id="activeDocTitle" class="text-sm font-bold text-slate-900 dark:text-white tracking-wide truncate max-w-[250px]">Document</h2>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <span id="activeDocType" class="font-mono text-[9px] bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-800 px-2 py-0.5 rounded shadow-sm">TXT</span>
+                            <span id="activeDocSize" class="font-mono text-[9px] text-slate-500">0 KB</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Scrollable Multipage Native PDF Container -->
+                    <div id="pdfPagesContainer" class="hidden flex-1 space-y-4 overflow-y-auto p-2 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 shadow-inner">
+                        <!-- Rendered page canvases populated here -->
+                    </div>
+
+                    <!-- Image Display Panel -->
+                    <div id="imageViewerContainer" class="hidden flex-1 flex justify-center items-center border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-950 p-4 shadow-sm">
+                        <img id="activeDocImage" src="" alt="Workspace Preview" class="max-w-full max-h-[420px] object-contain rounded-lg">
+                    </div>
+
+                    <!-- Clean Plain Text Viewer -->
+                    <div id="textViewerContainer" class="hidden flex-1 bg-white dark:bg-slate-900/40 rounded-xl p-5 border border-slate-200 dark:border-slate-800 font-sans text-slate-700 dark:text-slate-200 text-sm leading-relaxed overflow-x-auto whitespace-pre-wrap max-h-[550px] overflow-y-auto shadow-sm">
+                        <div id="activeDocContent"></div>
+                    </div>
+                </div>
+
+                <!-- Empty state reader -->
+                <div id="activeDocEmpty" class="flex-1 flex flex-col items-center justify-center text-center p-6 rounded-xl bg-slate-50/40 dark:bg-slate-950/40 my-auto">
+                    <i class="fa-solid fa-file-circle-plus text-slate-400 dark:text-slate-600 text-4xl mb-3"></i>
+                    <h3 class="font-bold text-slate-700 dark:text-slate-300 text-sm mb-1" data-i18n="emptyReaderTitle">Workspace Sandbox Empty</h3>
+                    <p class="text-xs text-slate-500 max-w-xs" data-i18n="emptyReaderDesc">Upload files or click any source checkbox on the left to display its multi-page preview here.</p>
+                </div>
+            </div>
+
+            <!-- Tab 2 content: Studio Grid with clean hover dimensions selection cards -->
+            <div id="tabContent-studio" class="hidden flex-1 p-5 overflow-y-auto bg-slate-50/80 dark:bg-slate-950/40 space-y-5">
+                
+                <!-- Studio Tool Cards Header -->
+                <div>
+                    <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5"><i class="fa-solid fa-wand-magic-sparkles text-cyan-600 dark:text-cyan-400 me-1.5"></i><span data-i18n="studioEngines">Studio Gen Engines</span></h3>
+                    <p class="text-[11px] text-slate-500 leading-normal" data-i18n="studioDesc">Generate custom studying content directly in your chat feed.</p>
+                </div>
+
+                <!-- Generators Grid -->
+                <div class="grid grid-cols-2 gap-3">
+                    
+                    <!-- Practice Quiz Card with Hover Select Size Overlay -->
+                    <div class="group relative overflow-hidden p-3.5 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl flex flex-col items-start text-start gap-2 shadow-sm min-h-[110px]">
+                        <!-- Interactive Hover Select Overlay panel -->
+                        <div class="absolute inset-0 bg-slate-950/95 dark:bg-slate-950/95 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-all duration-300 p-2 text-center z-20">
+                            <span class="text-[10px] font-bold text-cyan-400 mb-1.5 uppercase tracking-widest" data-i18n="selectQuizSize">Select Size</span>
+                            <div class="flex gap-1.5">
+                                <button onclick="triggerSynthesis('mcq', 3)" class="px-2 py-1 bg-cyan-600 hover:bg-cyan-500 text-white rounded text-[10px] font-bold shadow-md transition-all">3</button>
+                                <button onclick="triggerSynthesis('mcq', 5)" class="px-2 py-1 bg-cyan-600 hover:bg-cyan-500 text-white rounded text-[10px] font-bold shadow-md transition-all">5</button>
+                                <button onclick="triggerSynthesis('mcq', 10)" class="px-2 py-1 bg-cyan-600 hover:bg-cyan-500 text-white rounded text-[10px] font-bold shadow-md transition-all">10</button>
+                            </div>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-cyan-50 dark:bg-indigo-950/50 flex items-center justify-center text-cyan-600 dark:text-cyan-400 border border-cyan-100 dark:border-cyan-500/20">
+                            <i class="fa-solid fa-gamepad"></i>
+                        </div>
+                        <div>
+                            <span class="block text-xs font-bold text-slate-900 dark:text-white" data-i18n="practiceQuiz">Practice Quiz</span>
+                            <span class="text-[10px] text-slate-500 block" data-i18n="mcqDesc">MCQs and Diagnostics</span>
+                        </div>
+                    </div>
+
+                    <!-- Mind Map Tool Button -->
+                    <button onclick="triggerSynthesis('mindmap')" class="action-btn p-3.5 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 hover:border-pink-400 dark:hover:border-pink-500/30 rounded-xl flex flex-col items-start text-start gap-2 shadow-sm min-h-[110px]">
+                        <div class="w-8 h-8 rounded-lg bg-pink-50 dark:bg-indigo-950/50 flex items-center justify-center text-pink-600 dark:text-pink-400 border border-pink-100 dark:border-pink-500/20">
+                            <i class="fa-solid fa-bezier-curve"></i>
+                        </div>
+                        <div>
+                            <span class="block text-xs font-bold text-slate-900 dark:text-white" data-i18n="mindMap">Mind Map</span>
+                            <span class="text-[10px] text-slate-500" data-i18n="mindMapDesc">Relational flow structures</span>
+                        </div>
+                    </button>
+
+                    <!-- Summaries Tool Button with Hover dropdown options -->
+                    <div class="group relative overflow-hidden p-3.5 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl flex flex-col items-start text-start gap-2 shadow-sm min-h-[110px]">
+                        <!-- Interactive Hover Select Overlay panel -->
+                        <div class="absolute inset-0 bg-slate-950/95 dark:bg-slate-950/95 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-all duration-300 p-2 text-center z-20">
+                            <span class="text-[10px] font-bold text-emerald-400 mb-1.5 uppercase tracking-widest" data-i18n="selectSummaryLength">Select Length</span>
+                            <div class="flex flex-col gap-1 w-full max-w-[120px]">
+                                <button onclick="triggerSynthesis('summarize', 'short')" class="px-2 py-0.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-[9px] font-bold shadow-md transition-all" data-i18n="short">Short</button>
+                                <button onclick="triggerSynthesis('summarize', 'medium')" class="px-2 py-0.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-[9px] font-bold shadow-md transition-all" data-i18n="medium">Medium</button>
+                                <button onclick="triggerSynthesis('summarize', 'detailed')" class="px-2 py-0.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-[9px] font-bold shadow-md transition-all" data-i18n="detailed">Detailed</button>
+                            </div>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-indigo-950/50 flex items-center justify-center text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20">
+                            <i class="fa-solid fa-align-left"></i>
+                        </div>
+                        <div>
+                            <span class="block text-xs font-bold text-slate-900 dark:text-white" data-i18n="summaries">Summaries</span>
+                            <span class="text-[10px] text-slate-500 block" data-i18n="sumDesc">Deep structural digest</span>
+                        </div>
+                    </div>
+
+                    <!-- Flashcards with Hover Select Size Overlay -->
+                    <div class="group relative overflow-hidden p-3.5 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl flex flex-col items-start text-start gap-2 shadow-sm min-h-[110px]">
+                        <!-- Interactive Hover Select Overlay panel -->
+                        <div class="absolute inset-0 bg-slate-950/95 dark:bg-slate-950/95 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-all duration-300 p-2 text-center z-20">
+                            <span class="text-[10px] font-bold text-amber-400 mb-1.5 uppercase tracking-widest" data-i18n="selectFlashSize">Select Size</span>
+                            <div class="flex gap-1.5">
+                                <button onclick="generateFlashcards(3)" class="px-2 py-1 bg-amber-600 hover:bg-amber-500 text-white rounded text-[10px] font-bold shadow-md transition-all">3</button>
+                                <button onclick="generateFlashcards(5)" class="px-2 py-1 bg-amber-600 hover:bg-amber-500 text-white rounded text-[10px] font-bold shadow-md transition-all">5</button>
+                                <button onclick="generateFlashcards(10)" class="px-2 py-1 bg-amber-600 hover:bg-amber-500 text-white rounded text-[10px] font-bold shadow-md transition-all">10</button>
+                            </div>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-amber-50 dark:bg-indigo-950/50 flex items-center justify-center text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-500/20">
+                            <i class="fa-solid fa-clone"></i>
+                        </div>
+                        <div>
+                            <span class="block text-xs font-bold text-slate-900 dark:text-white" data-i18n="flashcards">Flashcards</span>
+                            <span class="text-[10px] text-slate-500 block" data-i18n="flashDesc">Term and recall practice</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- SETTINGS MODAL -->
+    <div id="settingsModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="w-full max-w-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-2xl space-y-5 text-slate-800 dark:text-slate-200">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                <h3 class="font-bold text-base font-sans"><i class="fa-solid fa-gear text-cyan-600 dark:text-cyan-400 me-2"></i><span data-i18n="settingsTitle">Settings</span></h3>
+                <button onclick="toggleSettingsModal(false)" class="text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            
+            <div class="space-y-4 text-xs font-semibold">
+                <!-- Theme -->
+                <div class="flex justify-between items-center">
+                    <span data-i18n="themeLabel">Theme</span>
+                    <select id="themeSelect" onchange="applySettings()" class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2 py-1.5 focus:outline-none focus:border-cyan-500">
+                        <option value="dark" data-i18n="themeDark">Dark Mode</option>
+                        <option value="light" data-i18n="themeLight">Light Mode</option>
+                    </select>
+                </div>
+
+                <!-- UI Language -->
+                <div class="flex justify-between items-center">
+                    <span data-i18n="uiLangLabel">Interface Language</span>
+                    <select id="uiLangSelect" onchange="applySettings()" class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2 py-1.5 focus:outline-none focus:border-cyan-500" dir="ltr">
+                        <option value="en">English</option>
+                        <option value="ar">العربية (Arabic)</option>
+                    </select>
+                </div>
+
+                <!-- Output Language -->
+                <div class="flex justify-between items-center">
+                    <span data-i18n="outLangLabel">Output Generation</span>
+                    <select id="outLangSelect" class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2 py-1.5 focus:outline-none focus:border-cyan-500" dir="ltr">
+                        <option value="English">English</option>
+                        <option value="Arabic">العربية (Arabic)</option>
+                    </select>
+                </div>
+
+                <!-- Font Selection -->
+                <div class="flex justify-between items-center">
+                    <span data-i18n="fontLabel">Typography</span>
+                    <select id="fontSelect" onchange="applySettings()" class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2 py-1.5 focus:outline-none focus:border-cyan-500">
+                        <option value="standard" data-i18n="fontStandard">Standard (Plus Jakarta)</option>
+                        <option value="dyslexic" data-i18n="fontDyslexic">Dyslexia Friendly (OpenDyslexic / Maqroo)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="pt-2">
+                <button onclick="toggleSettingsModal(false)" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-all" data-i18n="saveSettings">Save & Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PASTE COGNITIVE IMPLANT MODAL -->
+    <div id="rawNoteModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="w-full max-w-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                <h3 class="font-bold text-slate-800 dark:text-slate-200 text-base"><i class="fa-solid fa-keyboard text-cyan-600 dark:text-cyan-400 me-2"></i><span data-i18n="pasteNotes">Implant Raw Notes</span></h3>
+                <button onclick="toggleRawNoteModal(false)" class="text-slate-400 hover:text-slate-800 dark:hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs text-slate-500 dark:text-slate-400 font-semibold mb-1 uppercase tracking-wider" data-i18n="docName">Document Name</label>
+                    <input type="text" id="rawNoteTitle" placeholder="e.g. notes.txt" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white font-mono focus:outline-none focus:border-cyan-500">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-500 dark:text-slate-400 font-semibold mb-1 uppercase tracking-wider" data-i18n="docContent">Content / Lecture Material</label>
+                    <textarea id="rawNoteContent" rows="8" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-3 text-xs text-slate-800 dark:text-white font-mono focus:outline-none focus:border-cyan-500 resize-none"></textarea>
+                </div>
+            </div>
+
+            <div class="flex gap-2 pt-2 justify-end">
+                <button onclick="toggleRawNoteModal(false)" class="px-4 py-2 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-xl text-xs" data-i18n="cancel">Cancel</button>
+                <button onclick="saveRawNote()" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold" data-i18n="inject">Inject Core Notes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PREMIUM COGNITIVE FOCUS WORKSPACE MODAL OVERLAY -->
+    <div id="focusViewOverlay" class="hidden fixed inset-0 z-50 bg-slate-900/95 dark:bg-slate-950/98 backdrop-blur-md flex flex-col p-6 overflow-hidden">
+        <div class="max-w-5xl w-full mx-auto flex-1 flex flex-col justify-between h-full">
+            <!-- Header -->
+            <div class="flex items-center justify-between border-b border-slate-700/50 pb-4 mb-6 shrink-0">
+                <div class="flex items-center gap-3">
+                    <div id="focusViewIcon" class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center border border-indigo-500/30">
+                        <i class="fa-solid fa-expand text-lg"></i>
+                    </div>
+                    <div>
+                        <h2 id="focusViewTitle" class="text-base font-bold text-white tracking-wide">Studio Focus Workspace</h2>
+                        <p id="focusViewSubtitle" class="text-[10px] text-slate-400 font-mono uppercase tracking-wider">Cognitive Acceleration Mode</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <button onclick="dockFocusedToChat()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg flex items-center gap-2">
+                        <i class="fa-solid fa-message-arrow-down"></i> <span data-i18n="dockInline">Dock inline to Chat</span>
+                    </button>
+                    <button onclick="closeFocusView()" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition-all border border-slate-700/50">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Dynamic Interactive Workspace box -->
+            <div id="focusViewContent" class="flex-1 flex flex-col justify-center items-center bg-slate-950/30 border border-slate-800 rounded-2xl p-4 md:p-8 shadow-inner overflow-y-auto">
+                <!-- Dynamic loaded content goes here -->
+            </div>
+            
+            <!-- Footer details -->
+            <div class="mt-6 flex justify-between items-center text-[10px] text-slate-500 border-t border-slate-800/50 pt-4 shrink-0">
+                <span class="font-mono">STUDYLM COGNITIVE WORKSPACE PROCESSOR</span>
+                <span class="flex items-center gap-2">
+                    <kbd class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-[10px]">ESC</kbd> to exit focus view
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTIFICATION SYSTEM -->
+    <div id="toastContainer" class="fixed bottom-6 start-6 z-50 space-y-2 pointer-events-none max-w-sm"></div>
+
+    <script>
+        const apiKey = ""; 
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        // APPLICATION STATE
+        let documentVault = [];
+        let activeDocId = null;
+        let quizSessionCounter = 0;
+        let deckSessionCounter = 0;
+        
+        // VARIETY MEMORY REGISTRIES (Run-to-run unique constraints)
+        let generatedQuestionsHistory = [];
+        let generatedFlashcardsHistory = [];
+
+        // FOCUS WORKSPACE STATE
+        let currentFocusedType = null;
+        let currentFocusedCompId = null;
+        let currentFocusedData = null;
+        let focusDockCallbacks = {};
+        let generatedComponents = {};
+
+        // DICTIONARY FOR I18N
+        const i18nDict = {
+            en: {
+                title: "StudyLM Workspace",
+                engine: "ENGINE:",
+                getApiKey: "Get API Key",
+                sources: "Sources",
+                addSources: "Add sources",
+                pasteNotes: "Paste Raw Notes",
+                selectAll: "Select all",
+                activeConsultation: "Active Consultation",
+                clearChat: "Clear Chat",
+                welcomeMsg: "System loaded successfully. Upload your files on the left and enter your API Key in the top right. I am ready to calibrate.",
+                sugg1: "Core Takeaways",
+                sugg2: "Test Scenarios",
+                sugg3: "Explain Terminology",
+                prompt1: "Analyze the core concepts and present them as key study takeaways.",
+                prompt2: "Synthesize a list of potential test questions with complex scenarios.",
+                prompt3: "Explain the primary terminology from these sources with clear examples.",
+                chatPlaceholder: "Ask a question...",
+                workspaceReader: "Workspace Reader",
+                studioTools: "Studio Tools",
+                emptyReaderTitle: "Workspace Sandbox Empty",
+                emptyReaderDesc: "Upload files or click any source checkbox on the left to display its multi-page preview here.",
+                studioEngines: "Studio Gen Engines",
+                studioDesc: "Generate custom studying content directly in your chat feed.",
+                practiceQuiz: "Practice Quiz",
+                mcqDesc: "MCQs and Diagnostics",
+                mindMap: "Mind Map",
+                mindMapDesc: "Relational flow structures",
+                summaries: "Summaries",
+                sumDesc: "Deep structural digest",
+                flashcards: "Flashcards",
+                flashDesc: "Term and recall practice",
+                settingsTitle: "Settings",
+                themeLabel: "Theme",
+                themeDark: "Dark Mode",
+                themeLight: "Light Mode",
+                uiLangLabel: "Interface Language",
+                outLangLabel: "Output Generation",
+                fontLabel: "Typography",
+                fontStandard: "Standard (Plus Jakarta)",
+                fontDyslexic: "OpenDyslexic (Accessibility)",
+                saveSettings: "Save & Close",
+                docName: "Document Name",
+                docContent: "Content / Lecture Material",
+                cancel: "Cancel",
+                inject: "Inject Core Notes",
+                apiKeyPlaceholder: "Gemini API Key",
+                dockInline: "Dock inline to Chat",
+                selectQuizSize: "Select Size",
+                selectFlashSize: "Select Size",
+                selectSummaryLength: "Select Length",
+                short: "Short Summary",
+                medium: "Medium Summary",
+                detailed: "Detailed Summary",
+                next: "Next",
+                back: "Back",
+                submitQuiz: "Submit practice answers"
+            },
+            ar: {
+                title: "مساحة عمل StudyLM",
+                engine: "المحرك:",
+                getApiKey: "احصل على مفتاح API",
+                sources: "المصادر",
+                addSources: "إضافة مصادر",
+                pasteNotes: "لصق الملاحظات الخام",
+                selectAll: "تحديد الكل",
+                activeConsultation: "جلسة الاستشارة النشطة",
+                clearChat: "مسح المحادثة",
+                welcomeMsg: "تم تحميل نظام StudyLM بنجاح. يرجى رفع ملفاتك وإدخال مفتاح API الخاص بك في الزاوية العلوية لبدء المعايرة والدراسة.",
+                sugg1: "النقاط الرئيسية",
+                sugg2: "سيناريوهات الاختبار",
+                sugg3: "شرح المصطلحات",
+                prompt1: "قم بتحليل المفاهيم الأساسية وتقديمها كأهم النقاط المستخلصة للدراسة.",
+                prompt2: "قم بإنشاء مجموعة من الأسئلة المحتملة لتقييم فهم المادة مع سيناريوهات واقعية.",
+                prompt3: "اشرح المصطلحات والتعاريف الأساسية من هذه المصادر مع ذكر أمثلة تطبيقية.",
+                chatPlaceholder: "اطرح سؤالاً أو اطلب توليد اختبار...",
+                workspaceReader: "قارئ مساحة العمل",
+                studioTools: "أدوات الاستوديو",
+                emptyReaderTitle: "صندوق قارئ الملفات فارغ",
+                emptyReaderDesc: "قم برفع الملفات أو حدد أي مصدر من القائمة الجانبية لعرض محتوياته فورياً هنا.",
+                studioEngines: "محركات توليد الاستوديو",
+                studioDesc: "قم بتوليد محتوى تفاعلي مخصص لدعم دراستك مباشرة.",
+                practiceQuiz: "اختبار تجريبي",
+                mcqDesc: "أسئلة اختيار من متعدد مع شرح الحل",
+                mindMap: "خريطة ذهنية",
+                mindMapDesc: "مخطط مفاهيمي للعلاقات بين الأفكار",
+                summaries: "الملخصات الشاملة",
+                sumDesc: "هضم مفصل وبنية تفاعلية للمحتوى",
+                flashcards: "بطاقات الاستذكار",
+                flashDesc: "مراجعة سريعة للمصطلحات بالتذكر النشط",
+                settingsTitle: "الإعدادات",
+                themeLabel: "المظهر",
+                themeDark: "الوضع الداكن",
+                themeLight: "الوضع الفاتح",
+                uiLangLabel: "لغة واجهة الاستخدام",
+                outLangLabel: "لغة توليد الإجابات",
+                fontLabel: "نوع الخط وتحسين القراءة",
+                fontStandard: "خط قياسي (Tajawal)",
+                fontDyslexic: "خط مقروء (ملائم لعسر القراءة Maqroo)",
+                saveSettings: "حفظ وإغلاق",
+                docName: "اسم المستند",
+                docContent: "محتوى المستند أو النص",
+                cancel: "إلغاء",
+                inject: "إدخال الملاحظات",
+                apiKeyPlaceholder: "أدخل مفتاح Gemini API",
+                dockInline: "تثبيت في نافذة المحادثة",
+                selectQuizSize: "اختر الحجم",
+                selectFlashSize: "اختر الحجم",
+                selectSummaryLength: "اختر طول الملخص",
+                short: "ملخص قصير",
+                medium: "ملخص متوسط",
+                detailed: "ملخص مفصل",
+                next: "التالي",
+                back: "السابق",
+                submitQuiz: "إرسال إجابات الاختبار"
+            }
+        };
+
+        let currentLang = 'en';
+
+        // Helper function available globally for camera focus on a node
+        function focusOnNode(ws, cv, node) {
+            const st = ws._mindmapState;
+            const cw = ws.clientWidth || 800; 
+            const ch = ws.clientHeight || 550;
+            const nodeCenterX = node.x + 90; // Center offset width
+            const nodeCenterY = node.y + 25; // Center offset height
+
+            st.panX = (cw / 2) - (nodeCenterX * st.zoom);
+            st.panY = (ch / 2) - (nodeCenterY * st.zoom);
+            
+            cv.style.transform = `translate(${st.panX}px, ${st.panY}px) scale(${st.zoom})`;
+        }
+
+        function toggleSettingsModal(show) {
+            const modal = document.getElementById('settingsModal');
+            if (show) modal.classList.remove('hidden');
+            else modal.classList.add('hidden');
+        }
+
+        function applySettings() {
+            const theme = document.getElementById('themeSelect').value;
+            const root = document.getElementById('htmlRoot');
+            if (theme === 'dark') root.classList.add('dark');
+            else root.classList.remove('dark');
+
+            const lang = document.getElementById('uiLangSelect').value;
+            currentLang = lang;
+            root.dir = lang === 'ar' ? 'rtl' : 'ltr';
+
+            const fontPref = document.getElementById('fontSelect').value;
+            document.body.className = document.body.className.replace(/\bfont-(standard|dyslexic)-(en|ar)\b/g, '').trim();
+            document.body.classList.remove('font-maqroo-ar', 'font-dyslexic-en');
+
+            if (lang === 'ar') {
+                if (fontPref === 'dyslexic') {
+                    document.body.classList.add('font-maqroo-ar');
+                } else {
+                    document.body.classList.add('font-standard-ar');
+                }
+            } else {
+                if (fontPref === 'dyslexic') {
+                    document.body.classList.add('font-dyslexic-en');
+                } else {
+                    document.body.classList.add('font-standard-en');
+                }
+            }
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (i18nDict[lang][key]) el.textContent = i18nDict[lang][key];
+            });
+            document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+                const key = el.getAttribute('data-i18n-ph');
+                if (i18nDict[lang][key]) el.placeholder = i18nDict[lang][key];
+            });
+        }
+
+        function showNotification(title, message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `pointer-events-auto p-4 rounded-xl border flex gap-3 shadow-2xl transition-all duration-300 transform translate-y-2 opacity-0 bg-white dark:bg-slate-900 ${
+                type === 'error' ? 'border-red-300 dark:border-red-800 text-red-600 dark:text-red-300' : 
+                type === 'success' ? 'border-green-300 dark:border-green-800 text-green-600 dark:text-green-300' : 
+                'border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200'
+            }`;
+            
+            const icon = type === 'error' ? 'fa-triangle-exclamation' : type === 'success' ? 'fa-circle-check' : 'fa-circle-info';
+            
+            toast.innerHTML = `
+                <div class="shrink-0 pt-0.5"><i class="fa-solid ${icon} text-md ${type === 'error' ? 'text-red-500' : type === 'success' ? 'text-green-500' : 'text-cyan-500'}"></i></div>
+                <div>
+                    <h4 class="text-xs font-bold tracking-wider uppercase">${title}</h4>
+                    <p class="font-sans text-[11px] mt-0.5 opacity-90">${message}</p>
+                </div>
+            `;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 4500);
+        }
+
+        const fileUploader = document.getElementById('fileUploader');
+        fileUploader.addEventListener('change', (e) => handleFiles(e.target.files));
+
+        function handleFiles(files) {
+            Array.from(files).forEach(file => {
+                const isImage = file.type.startsWith('image/');
+                const isPdf = file.type === 'application/pdf' || file.name.endsWith('.pdf');
+                
+                if (isPdf) {
+                    showNotification("Analyzing PDF Vector", `Processing ${file.name} layers...`, "info");
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        addDocumentToVault({
+                            id: crypto.randomUUID(),
+                            name: file.name,
+                            type: 'PDF',
+                            size: file.size,
+                            arrayBuffer: event.target.result,
+                            isImage: false,
+                            isPdf: true,
+                            checked: true,
+                            content: "" 
+                        });
+                    };
+                    reader.readAsArrayBuffer(file);
+                } else if (isImage) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const base64Data = event.target.result.split(',')[1];
+                        addDocumentToVault({
+                            id: crypto.randomUUID(),
+                            name: file.name,
+                            type: file.type.split('/')[1].toUpperCase() || 'IMAGE',
+                            size: file.size,
+                            raw: event.target.result,
+                            base64: base64Data,
+                            mimeType: file.type,
+                            isImage: true,
+                            isPdf: false,
+                            checked: true,
+                            content: `[Visual Image Layer Ingested: ${file.name}]`
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        addDocumentToVault({
+                            id: crypto.randomUUID(),
+                            name: file.name,
+                            type: file.name.split('.').pop().toUpperCase() || 'TXT',
+                            size: file.size,
+                            raw: null,
+                            isImage: false,
+                            isPdf: false,
+                            checked: true,
+                            content: event.target.result
+                        });
+                    };
+                    reader.readAsText(file);
+                }
+            });
+        }
+
+        function addDocumentToVault(doc) {
+            documentVault.push(doc);
+            updateVaultList();
+            activateDocument(doc.id);
+            showNotification("Source Registered", `"${doc.name}" loaded. Context updated.`, "success");
+        }
+
+        function updateVaultList() {
+            const list = document.getElementById('vaultList');
+            if (documentVault.length === 0) {
+                list.innerHTML = `
+                    <div class="text-center py-6 border border-slate-200 dark:border-slate-800 rounded-xl bg-white/50 dark:bg-slate-950/40 p-4 shadow-inner">
+                        <i class="fa-solid fa-box-open text-slate-300 dark:text-slate-700 text-xl mb-1.5"></i>
+                        <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">No active sources</p>
+                    </div>
+                `;
+                updateSourcesIndicator();
+                return;
+            }
+
+            list.innerHTML = documentVault.map(doc => {
+                const isActive = doc.id === activeDocId;
+                const sizeKB = (doc.size / 1024).toFixed(1);
+                return `
+                    <div class="group relative flex items-center justify-between p-3 rounded-xl border transition-all bg-white/80 dark:bg-slate-900/40 hover:bg-white dark:hover:bg-slate-900/80 shadow-sm ${
+                        isActive ? 'border-cyan-400 dark:border-cyan-500/40 bg-white dark:bg-slate-900/90' : 'border-slate-200 dark:border-slate-800'
+                    }">
+                        <div class="flex items-start gap-2.5 flex-1 min-w-0">
+                            <input type="checkbox" ${doc.checked ? 'checked' : ''} onchange="toggleSourceCheck('${doc.id}', this.checked)" class="mt-1 accent-cyan-500 dark:accent-cyan-400 shrink-0">
+                            <div class="flex-1 min-w-0 cursor-pointer" onclick="activateDocument('${doc.id}')">
+                                <div class="flex items-center gap-1.5 mb-0.5">
+                                    <span class="font-mono text-[8px] font-bold px-1.5 py-0.5 rounded ${
+                                        doc.isPdf ? 'bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500/20' : 
+                                        doc.isImage ? 'bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/20' : 
+                                        'bg-cyan-50 dark:bg-cyan-950 text-cyan-600 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-500/20'
+                                    }">${doc.type}</span>
+                                    <span class="text-xs font-semibold truncate ${isActive ? 'text-cyan-600 dark:text-cyan-400' : 'text-slate-700 dark:text-slate-200'}">${doc.name}</span>
+                                </div>
+                                <span class="font-mono text-[9px] text-slate-500">${sizeKB} KB</span>
+                            </div>
+                        </div>
+                        <button onclick="deleteDocument('${doc.id}')" class="text-slate-400 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 p-1.5 transition-colors">
+                            <i class="fa-solid fa-trash-can text-xs"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+
+            updateSourcesIndicator();
+        }
+
+        function toggleSourceCheck(id, isChecked) {
+            const doc = documentVault.find(d => d.id === id);
+            if (doc) doc.checked = isChecked;
+            updateSourcesIndicator();
+        }
+
+        function toggleSelectAllSources(checkbox) {
+            documentVault.forEach(doc => doc.checked = checkbox.checked);
+            updateVaultList();
+        }
+
+        function updateSourcesIndicator() {
+            const activeCount = documentVault.filter(d => d.checked).length;
+            const indicator = document.getElementById('activeSourcesIndicator');
+            const inputTag = document.getElementById('inputSourcesTag');
+            
+            const txt = `${activeCount} ${currentLang === 'ar' ? 'نشط' : 'active'}`;
+            if (indicator) indicator.textContent = txt;
+            if (inputTag) inputTag.textContent = txt;
+        }
+
+        async function activateDocument(id) {
+            activeDocId = id;
+            updateVaultList();
+            
+            const doc = documentVault.find(d => d.id === id);
+            if (!doc) return;
+
+            const elWorkspaceDocName = document.getElementById('activeWorkspaceDocName');
+            const elDocTitle = document.getElementById('activeDocTitle');
+            const elDocType = document.getElementById('activeDocType');
+            const elDocSize = document.getElementById('activeDocSize');
+            const elDocContent = document.getElementById('activeDocContent');
+
+            if (elWorkspaceDocName) elWorkspaceDocName.textContent = `// ${doc.name}`;
+            if (elDocTitle) elDocTitle.textContent = doc.name;
+            if (elDocType) elDocType.textContent = doc.type;
+            if (elDocSize) elDocSize.textContent = `${(doc.size / 1024).toFixed(1)} KB`;
+
+            const pdfPagesContainer = document.getElementById('pdfPagesContainer');
+            const imgContainer = document.getElementById('imageViewerContainer');
+            const textContainer = document.getElementById('textViewerContainer');
+
+            if (pdfPagesContainer) pdfPagesContainer.classList.add('hidden');
+            if (imgContainer) imgContainer.classList.add('hidden');
+            if (textContainer) textContainer.classList.add('hidden');
+
+            if (doc.isPdf) {
+                await loadAndRenderPdf(doc);
+            } else if (doc.isImage) {
+                const elDocImage = document.getElementById('activeDocImage');
+                if (elDocImage) elDocImage.src = doc.raw;
+                if (imgContainer) imgContainer.classList.remove('hidden');
+            } else {
+                if (elDocContent) elDocContent.textContent = doc.content;
+                if (textContainer) textContainer.classList.remove('hidden');
+            }
+
+            const elDocEmpty = document.getElementById('activeDocEmpty');
+            const elDocView = document.getElementById('activeDocView');
+            if (elDocEmpty) elDocEmpty.classList.add('hidden');
+            if (elDocView) elDocView.classList.remove('hidden');
+            
+            switchRightTab('reader');
+        }
+
+        async function loadAndRenderPdf(doc) {
+            const pdfPagesContainer = document.getElementById('pdfPagesContainer');
+            if (!pdfPagesContainer) return;
+
+            pdfPagesContainer.innerHTML = `
+                <div class="text-center py-20 text-slate-500 dark:text-slate-400">
+                    <i class="fa-solid fa-spinner animate-spin text-3xl mb-3 text-cyan-500 dark:text-cyan-400"></i>
+                    <p class="font-mono text-xs tracking-wider uppercase">Decoding PDF Vectors...</p>
+                </div>
+            `;
+            pdfPagesContainer.classList.remove('hidden');
+
+            try {
+                const bufferCopy = doc.arrayBuffer.slice(0);
+                const pdf = await pdfjsLib.getDocument({ data: bufferCopy }).promise;
+                pdfPagesContainer.innerHTML = '';
+                let extractedText = "";
+
+                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                    const page = await pdf.getPage(pageNum);
+                    
+                    const pageWrapper = document.createElement('div');
+                    pageWrapper.className = "relative bg-white dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col items-center gap-3 shadow-xl";
+                    
+                    const pageIndicator = document.createElement('div');
+                    pageIndicator.className = "self-start bg-slate-50 dark:bg-slate-950 text-cyan-600 dark:text-cyan-400 font-mono text-[10px] px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm";
+                    pageIndicator.textContent = `PAGE ${pageNum} OF ${pdf.numPages}`;
+                    pageWrapper.appendChild(pageIndicator);
+
+                    const canvas = document.createElement('canvas');
+                    canvas.className = "w-full max-w-full h-auto rounded border border-slate-100 dark:border-slate-950 shadow-md";
+                    pageWrapper.appendChild(canvas);
+                    pdfPagesContainer.appendChild(pageWrapper);
+
+                    const viewport = page.getViewport({ scale: 1.3 });
+                    const context = canvas.getContext('2d');
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+
+                    const renderContext = { canvasContext: context, viewport: viewport };
+                    await page.render(renderContext).promise;
+
+                    const textContent = await page.getTextContent();
+                    const pageText = textContent.items.map(item => item.str).join(' ');
+                    extractedText += `\n--- PAGE ${pageNum} ---\n${pageText}\n`;
+                }
+
+                doc.content = extractedText || "[Empty pages scanned]";
+                showNotification("PDF Fully Rendered", `Pages generated side-by-side. Ready for questions.`, "success");
+            } catch (error) {
+                pdfPagesContainer.innerHTML = `
+                    <div class="text-center py-10 text-red-500 dark:text-red-400">
+                        <i class="fa-solid fa-triangle-exclamation text-3xl mb-2"></i>
+                        <p class="font-mono text-xs">PDF Render pipeline failed.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function deleteDocument(id) {
+            documentVault = documentVault.filter(d => d.id !== id);
+            if (activeDocId === id) {
+                activeDocId = documentVault.length > 0 ? documentVault[0].id : null;
+            }
+            updateVaultList();
+            if (activeDocId) {
+                activateDocument(activeDocId);
+            } else {
+                const elWorkspaceDocName = document.getElementById('activeWorkspaceDocName');
+                if (elWorkspaceDocName) elWorkspaceDocName.textContent = 'No Active Core';
+                
+                const elDocEmpty = document.getElementById('activeDocEmpty');
+                const elDocView = document.getElementById('activeDocView');
+                if (elDocEmpty) elDocEmpty.classList.remove('hidden');
+                if (elDocView) elDocView.classList.add('hidden');
+            }
+            showNotification("Document Erased", "File deleted from vault workspace.", "info");
+        }
+
+        function toggleRawNoteModal(show) {
+            const modal = document.getElementById('rawNoteModal');
+            if (show) {
+                modal.classList.remove('hidden');
+                document.getElementById('rawNoteTitle').value = `Note_${new Date().toLocaleTimeString().replace(/\s/g, "")}.txt`;
+                document.getElementById('rawNoteContent').value = '';
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function saveRawNote() {
+            const title = document.getElementById('rawNoteTitle').value.trim() || 'Custom_Notes.txt';
+            const content = document.getElementById('rawNoteContent').value.trim();
+
+            if (!content) return;
+
+            const mockSize = new Blob([content]).size;
+            addDocumentToVault({
+                id: crypto.randomUUID(), name: title, type: 'TXT', size: mockSize,
+                raw: null, isImage: false, isPdf: false, checked: true, content: content
+            });
+            toggleRawNoteModal(false);
+        }
+
+        function switchRightTab(tabId) {
+            const btnReader = document.getElementById('tabBtn-reader');
+            const btnStudio = document.getElementById('tabBtn-studio');
+            const conReader = document.getElementById('tabContent-reader');
+            const conStudio = document.getElementById('tabContent-studio');
+
+            if (!btnReader || !btnStudio || !conReader || !conStudio) return;
+
+            const activeClass = "px-3 py-1.5 text-xs font-bold rounded-lg bg-white dark:bg-slate-900 text-cyan-600 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-500/20 flex items-center gap-1.5 shadow-sm";
+            const inactiveClass = "px-3 py-1.5 text-xs font-bold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900/40 flex items-center gap-1.5 transition-all";
+
+            if (tabId === 'reader') {
+                btnReader.className = activeClass;
+                btnStudio.className = inactiveClass;
+                conReader.classList.remove('hidden');
+                conStudio.classList.add('hidden');
+            } else {
+                btnStudio.className = activeClass;
+                btnReader.className = inactiveClass;
+                conStudio.classList.remove('hidden');
+                conReader.classList.add('hidden');
+            }
+        }
+
+        async function fetchGeminiWithBackoff(prompt, systemPrompt = "", activeImage = null) {
+            const userKeyInput = document.getElementById('userApiKey')?.value.trim();
+            const finalApiKey = userKeyInput || apiKey;
+
+            if (!finalApiKey) {
+                showNotification("API Key Required", "Please enter your Gemini API Key in the top header to enable StudyLM synthesis engines.", "error");
+                const keyInput = document.getElementById('userApiKey');
+                if (keyInput) {
+                    keyInput.focus();
+                    keyInput.classList.add('ring-2', 'ring-red-500', 'border-red-500');
+                    setTimeout(() => {
+                        keyInput.classList.remove('ring-2', 'ring-red-500', 'border-red-500');
+                    }, 3000);
+                }
+                throw new Error("Missing API Key");
+            }
+
+            let delay = 1000;
+            const maxRetries = 5;
+            
+            let contents = [];
+            if (activeImage) {
+                contents = [{
+                    role: "user",
+                    parts: [
+                        { text: prompt },
+                        { inlineData: { mimeType: activeImage.mimeType, data: activeImage.base64 } }
+                    ]
+                }];
+            } else {
+                contents = [{ parts: [{ text: prompt }] }];
+            }
+
+            const payload = { contents: contents, systemInstruction: { parts: [{ text: systemPrompt }] } };
+            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${finalApiKey}`;
+
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.ok) {
+                        const json = await response.json();
+                        const resultText = json.candidates?.[0]?.content?.parts?.[0]?.text;
+                        if (resultText) return resultText;
+                        throw new Error("Empty response returned from model.");
+                    } else if (response.status === 429 || response.status >= 500) {
+                        await new Promise(res => setTimeout(res, delay));
+                        delay *= 2; 
+                    } else {
+                        const errBody = await response.text();
+                        throw new Error(`Connection failure: ${response.status} - ${errBody}`);
+                    }
+                } catch (error) {
+                    if (i === maxRetries - 1) {
+                        showNotification("API Handshake Failed", "Cannot reach Gemini servers. Please check your key quota.", "error");
+                        throw error;
+                    }
+                    await new Promise(res => setTimeout(res, delay));
+                    delay *= 2;
+                }
+            }
+        }
+
+        function getCombinedCheckedContext() {
+            const checkedDocs = documentVault.filter(doc => doc.checked);
+            let combinedContent = "";
+            let imageAttachment = null;
+            checkedDocs.forEach(doc => {
+                combinedContent += `\n--- START OF SOURCE DOCUMENT: "${doc.name}" ---\n${doc.content}\n--- END OF SOURCE DOCUMENT ---\n`;
+                if (doc.isImage) imageAttachment = doc;
+            });
+            return { combinedContent, imageAttachment };
+        }
+
+        function registerComponent(type, html, data = null) {
+            const id = type + '-' + Date.now();
+            generatedComponents[id] = {
+                type: type,
+                html: html,
+                data: data
+            };
+            return id;
+        }
+
+        function launchFocusViewFromRegistry(compId) {
+            const comp = generatedComponents[compId];
+            if (!comp) return;
+            launchFocusView(comp.type, comp.html, compId, comp.data);
+        }
+
+        function launchFocusView(type, htmlContent, compId = null, data = null) {
+            const overlay = document.getElementById('focusViewOverlay');
+            const contentBox = document.getElementById('focusViewContent');
+            const titleEl = document.getElementById('focusViewTitle');
+            const iconEl = document.getElementById('focusViewIcon');
+            
+            if (!overlay || !contentBox) return;
+            
+            currentFocusedType = type;
+            currentFocusedCompId = compId;
+            currentFocusedData = htmlContent;
+            
+            if (type === 'mcq') {
+                titleEl.textContent = currentLang === 'ar' ? 'استوديو الاختبارات التشخيصية' : 'Diagnostic Quiz Focus';
+                iconEl.innerHTML = '<i class="fa-solid fa-gamepad text-cyan-400 text-lg"></i>';
+                contentBox.innerHTML = htmlContent;
+            } else if (type === 'mindmap') {
+                titleEl.textContent = currentLang === 'ar' ? 'استوديو الخرائط الذهنية' : 'Interactive Mind Map Focus';
+                iconEl.innerHTML = '<i class="fa-solid fa-bezier-curve text-pink-400 text-lg"></i>';
+                contentBox.innerHTML = '';
+                if (data) drawMindmap(contentBox, data);
+            } else if (type === 'flashcards') {
+                titleEl.textContent = currentLang === 'ar' ? 'استوديو البطاقات التعليمية للتذكر النشط' : 'Active Recall Flashcards Focus';
+                iconEl.innerHTML = '<i class="fa-solid fa-clone text-amber-400 text-lg"></i>';
+                contentBox.innerHTML = htmlContent;
+            } else if (type === 'summarize') {
+                titleEl.textContent = currentLang === 'ar' ? 'ملخص المستند التفاعلي' : 'Interactive Document Summary';
+                iconEl.innerHTML = '<i class="fa-solid fa-file-invoice text-emerald-400 text-lg"></i>';
+                contentBox.innerHTML = htmlContent;
+            }
+            
+            overlay.classList.remove('hidden');
+        }
+
+        function closeFocusView() {
+            const overlay = document.getElementById('focusViewOverlay');
+            if (overlay) overlay.classList.add('hidden');
+        }
+
+        function dockFocusedToChatFromRegistry(compId, bubbleId) {
+            const comp = generatedComponents[compId];
+            if (!comp) return;
+            dockFocusedToChatDirectly(comp.type, comp.html, bubbleId, compId, comp.data);
+        }
+
+        function dockFocusedToChat() {
+            if (currentFocusedCompId) {
+                const activeLoaderId = focusDockCallbacks[currentFocusedType];
+                if (activeLoaderId) {
+                    dockFocusedToChatFromRegistry(currentFocusedCompId, activeLoaderId);
+                } else {
+                    const newBubbleId = 'dock-fresh-' + Date.now();
+                    renderChatBubble(`<div id="${newBubbleId}-content">Docking component...</div>`, false, newBubbleId);
+                    dockFocusedToChatFromRegistry(currentFocusedCompId, newBubbleId);
+                }
+                closeFocusView();
+            }
+        }
+
+        function setupMindmapEvents(workspace, rootData) {
+            const canvas = workspace.querySelector('.mindmap-canvas');
+            const nodesLayer = workspace.querySelector('.mindmap-nodes-layer');
+            let state = workspace._mindmapState;
+            
+            let isDragging = false;
+            let startX = 0;
+            let startY = 0;
+
+            function updateTransform() {
+                canvas.style.transform = `translate(${state.panX}px, ${state.panY}px) scale(${state.zoom})`;
+            }
+
+            function zoom(delta, cx, cy) {
+                const oldZoom = state.zoom;
+                state.zoom += delta;
+                state.zoom = Math.max(0.3, Math.min(state.zoom, 3));
+                
+                if (cx === undefined) cx = workspace.clientWidth / 2;
+                if (cy === undefined) cy = workspace.clientHeight / 2;
+
+                const canvasX = (cx - state.panX) / oldZoom;
+                const canvasY = (cy - state.panY) / oldZoom;
+
+                state.panX = cx - (canvasX * state.zoom);
+                state.panY = cy - (canvasY * state.zoom);
+
+                updateTransform();
+            }
+
+            workspace.querySelector('.zoom-in-btn').onclick = () => zoom(0.2);
+            workspace.querySelector('.zoom-out-btn').onclick = () => zoom(-0.2);
+            workspace.querySelector('.center-btn').onclick = () => {
+                state.zoom = 1;
+                focusOnNode(workspace, canvas, rootData);
+            };
+
+            workspace.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const rect = workspace.getBoundingClientRect();
+                const cx = e.clientX - rect.left;
+                const cy = e.clientY - rect.top;
+                const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                zoom(delta, cx, cy);
+            }, { passive: false });
+
+            workspace.addEventListener('mousedown', (e) => {
+                if (e.target.closest('.mindmap-node')) return; 
+                if (e.target.closest('button')) return; 
+                isDragging = true;
+                startX = e.clientX - state.panX;
+                startY = e.clientY - state.panY;
+                canvas.style.transition = 'none';
+                canvas.classList.remove('cursor-grab');
+                canvas.classList.add('cursor-grabbing');
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                state.panX = e.clientX - startX;
+                state.panY = e.clientY - startY;
+                updateTransform();
+            });
+
+            window.addEventListener('mouseup', () => {
+                if (!isDragging) return;
+                isDragging = false;
+                canvas.style.transition = 'transform 0.3s ease-out';
+                canvas.classList.add('cursor-grab');
+                canvas.classList.remove('cursor-grabbing');
+            });
+
+            nodesLayer.addEventListener('click', (e) => {
+                const nodeEl = e.target.closest('.mindmap-node');
+                if (!nodeEl) return;
+
+                let clickedNode = null;
+                function findNode(n) {
+                    if (n.id === nodeEl.id) { clickedNode = n; return; }
+                    if (n.children) n.children.forEach(findNode);
+                }
+                findNode(rootData);
+
+                if (clickedNode && clickedNode.children && clickedNode.children.length > 0) {
+                    clickedNode.collapsed = !clickedNode.collapsed;
+                    workspace._focusNextNode = clickedNode;
+                    drawMindmap(workspace.parentElement, rootData); 
+                }
+            });
+        }
+
+        function drawMindmap(container, data) {
+            let workspace = container.querySelector('.mindmap-workspace');
+            if (!workspace) {
+                container.innerHTML = `
+                    <div class="mindmap-workspace relative w-full h-[400px] md:h-[600px] overflow-hidden bg-slate-900/60 rounded-2xl border border-slate-800 shadow-inner select-none">
+                        <div class="absolute bottom-4 right-4 z-20 flex gap-2">
+                            <button class="zoom-in-btn w-8 h-8 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 hover:text-white flex items-center justify-center transition-colors shadow-lg border border-slate-700"><i class="fa-solid fa-plus"></i></button>
+                            <button class="zoom-out-btn w-8 h-8 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 hover:text-white flex items-center justify-center transition-colors shadow-lg border border-slate-700"><i class="fa-solid fa-minus"></i></button>
+                            <button class="center-btn w-8 h-8 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 hover:text-white flex items-center justify-center transition-colors shadow-lg border border-slate-700"><i class="fa-solid fa-compress"></i></button>
+                        </div>
+                        <div class="mindmap-canvas absolute top-0 left-0 transition-transform duration-300 cursor-grab w-[4000px] h-[4000px]" style="transform-origin: 0 0;">
+                            <svg class="absolute inset-0 pointer-events-none w-full h-full mindmap-svg"></svg>
+                            <div class="absolute inset-0 w-full h-full mindmap-nodes-layer"></div>
+                        </div>
+                    </div>
+                `;
+                workspace = container.querySelector('.mindmap-workspace');
+                
+                let state = { zoom: 1, panX: 0, panY: 0, nextY: 1000, initialized: false };
+                workspace._mindmapState = state;
+                
+                setupMindmapEvents(workspace, data);
+            }
+
+            const svg = workspace.querySelector('.mindmap-svg');
+            const nodesLayer = workspace.querySelector('.mindmap-nodes-layer');
+            const canvas = workspace.querySelector('.mindmap-canvas');
+            const state = workspace._mindmapState;
+
+            state.nextY = 1000;
+
+            function calculateLayout(node, depth) {
+                node.depth = depth;
+                if (node.children && node.children.length > 0 && !node.collapsed) {
+                    node.children.forEach(child => calculateLayout(child, depth + 1));
+                    let minY = node.children[0].y;
+                    let maxY = node.children[node.children.length - 1].y;
+                    node.y = (minY + maxY) / 2;
+                } else {
+                    node.y = state.nextY;
+                    state.nextY += 80; 
+                }
+                node.x = depth * 260 + 200;
+            }
+
+            calculateLayout(data, 0);
+
+            let svgContent = "";
+            let nodesHtml = "";
+
+            function traverseAndRender(node, parentNode = null) {
+                if (parentNode) {
+                    const startX = parentNode.x + 180;
+                    const startY = parentNode.y + 25;
+                    const endX = node.x;
+                    const endY = node.y + 25;
+                    const cpX1 = startX + (endX - startX) / 2;
+                    const cpY1 = startY;
+                    const cpX2 = startX + (endX - startX) / 2;
+                    const cpY2 = endY;
+                    
+                    svgContent += `
+                        <path d="M ${startX} ${startY} C ${cpX1} ${cpY1}, ${cpX2} ${cpY2}, ${endX} ${endY}" 
+                              fill="none" 
+                              stroke="#818cf8" 
+                              stroke-width="2" 
+                              stroke-dasharray="4 2"
+                              class="opacity-70 transition-all duration-300" />
+                    `;
+                }
+
+                const hasChildren = node.children && node.children.length > 0;
+                const toggleIcon = hasChildren ? (node.collapsed ? 'fa-plus' : 'fa-minus') : '';
+                
+                let cardColor = "border-indigo-500/50 bg-indigo-950/90 text-indigo-200";
+                if (node.depth === 0) {
+                    cardColor = "border-cyan-400 bg-cyan-950/95 text-cyan-200 ring-2 ring-cyan-400/20";
+                } else if (node.depth === 1) {
+                    cardColor = "border-pink-500/50 bg-pink-950/90 text-pink-200";
+                }
+
+                nodesHtml += `
+                    <div id="${node.id}" 
+                         style="left: ${node.x}px; top: ${node.y}px; width: 180px; height: 50px;" 
+                         class="mindmap-node absolute border rounded-xl flex items-center justify-between px-3 shadow-md hover:scale-105 hover:shadow-lg transition-all duration-200 cursor-pointer select-none ${cardColor}">
+                        <div class="flex-1 min-w-0 pr-1 text-left">
+                            <p class="text-[10px] font-bold truncate tracking-wide drop-shadow-md" title="${escapeHtml(node.name)}">${escapeHtml(node.name)}</p>
+                        </div>
+                        ${hasChildren ? `
+                            <button class="w-5 h-5 rounded-md bg-white/10 flex items-center justify-center text-[8px] transition-colors shrink-0 select-none pointer-events-none">
+                                <i class="fa-solid ${toggleIcon}"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+
+                if (!node.collapsed && node.children) {
+                    node.children.forEach(child => traverseAndRender(child, node));
+                }
+            }
+
+            traverseAndRender(data);
+            svg.innerHTML = svgContent;
+            nodesLayer.innerHTML = nodesHtml;
+
+            if (!state.initialized) {
+                state.initialized = true;
+                setTimeout(() => focusOnNode(workspace, canvas, data), 50);
+            } else if (workspace._focusNextNode) {
+                focusOnNode(workspace, canvas, workspace._focusNextNode);
+                workspace._focusNextNode = null;
+            }
+        }
+
+        function renderCollapsibleSummary(mdText, outLang) {
+            const lines = mdText.split('\n');
+            let html = `<div class="space-y-3 w-full" dir="${outLang === 'Arabic' ? 'rtl' : 'ltr'}">`;
+            
+            let currentSectionTitle = "";
+            let currentSectionContent = [];
+            
+            function flushSection() {
+                if (currentSectionTitle || currentSectionContent.length > 0) {
+                    const sectionTitle = currentSectionTitle || (outLang === 'Arabic' ? 'مقدمة ونقاط رئيسية' : 'Overview & Main Points');
+                    const parsedContent = renderMarkdown(currentSectionContent.join('\n'));
+                    
+                    html += `
+                        <details class="group border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/50 p-4 transition-all hover:border-emerald-500/30 shadow-sm" open>
+                            <summary class="flex items-center justify-between font-bold text-xs uppercase tracking-wider text-slate-900 dark:text-emerald-400 cursor-pointer list-none focus:outline-none">
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform duration-200 text-emerald-500 text-[10px]"></i>
+                                    <span>${sectionTitle}</span>
+                                </div>
+                                <span class="text-[9px] font-mono text-slate-400 dark:text-slate-500 group-open:hidden">${outLang === 'Arabic' ? 'انقر للتوسيع' : 'Click to expand'}</span>
+                            </summary>
+                            <div class="mt-3 text-xs leading-relaxed max-w-none text-slate-700 dark:text-slate-300 font-sans border-t border-slate-100 dark:border-slate-850 pt-3">
+                                ${parsedContent}
+                            </div>
+                        </details>
+                    `;
+                }
+                currentSectionContent = [];
+                currentSectionTitle = "";
+            }
+            
+            lines.forEach(line => {
+                const headerMatch = line.match(/^(?:#{1,4})\s+(.*)$/);
+                if (headerMatch) {
+                    flushSection();
+                    currentSectionTitle = headerMatch[1].replace(/\*\*|`|_/g, '').trim();
+                } else {
+                    currentSectionContent.push(line);
+                }
+            });
+            flushSection();
+            
+            html += `</div>`;
+            return html;
+        }
+
+        function dockFocusedToChatDirectly(type, htmlContent, bubbleId, compId, data) {
+            const bubble = document.getElementById(bubbleId);
+            if (!bubble) return;
+            
+            const premiumWrapper = `
+                <div class="relative group border border-slate-200 dark:border-slate-800 rounded-2xl p-4 bg-white dark:bg-slate-900/60 shadow-md">
+                    <button onclick="launchFocusViewFromRegistry('${compId}')" class="absolute top-2.5 end-2.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity z-30 px-2 py-1 bg-slate-100 dark:bg-slate-850 hover:bg-indigo-600 hover:text-white rounded-lg text-slate-500 text-[10px] flex items-center gap-1 shadow-sm border border-slate-200 dark:border-slate-850">
+                        <i class="fa-solid fa-expand"></i> ${currentLang === 'ar' ? 'عرض ملء الشاشة' : 'Focus View'}
+                    </button>
+                    <div class="mt-2 comp-container">
+                        ${htmlContent}
+                    </div>
+                </div>
+            `;
+            
+            const container = bubble.querySelector('.bg-white, .bg-slate-900');
+            if (container) {
+                container.innerHTML = `
+                    <p class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 mb-1 tracking-wider font-sans">GEMINI 2.5 FLASH</p>
+                    <div class="text-xs leading-relaxed max-w-none text-slate-800 dark:text-slate-300">${premiumWrapper}</div>
+                `;
+                
+                if (type === 'mindmap' && data) {
+                    const compContainer = container.querySelector('.comp-container');
+                    compContainer.innerHTML = '';
+                    drawMindmap(compContainer, data);
+                }
+            }
+            showNotification("Component Anchored", "Locked the component to your active consultation feed.", "success");
+        }
+
+        function handleQuizSlide(quizSessionId, step) {
+            const quizContainer = document.querySelector(`[data-quiz-session="${quizSessionId}"]`);
+            if (!quizContainer) return;
+
+            const slides = quizContainer.querySelectorAll('.quiz-question-slide');
+            const total = slides.length;
+            let activeIdx = parseInt(quizContainer.getAttribute('data-active-index') || "0");
+
+            slides[activeIdx].classList.add('hidden');
+            activeIdx = (activeIdx + step + total) % total;
+            slides[activeIdx].classList.remove('hidden');
+
+            quizContainer.setAttribute('data-active-index', activeIdx);
+            
+            const pager = quizContainer.querySelector('.quiz-pager-label');
+            if (pager) pager.textContent = `${activeIdx + 1} / ${total}`;
+        }
+
+        function handleFlashcardSlide(deckId, step) {
+            const deckContainer = document.querySelector(`[data-deck-id="${deckId}"]`);
+            if (!deckContainer) return;
+
+            const slides = deckContainer.querySelectorAll('.flashcard-node-slide');
+            const total = slides.length;
+            let activeIdx = parseInt(deckContainer.getAttribute('data-active-index') || "0");
+
+            const currentFront = slides[activeIdx].querySelector('.flashcard-front');
+            const currentBack = slides[activeIdx].querySelector('.flashcard-back');
+            if (currentFront && currentBack) {
+                currentFront.classList.remove('hidden');
+                currentBack.classList.add('hidden');
+            }
+
+            slides[activeIdx].classList.add('hidden');
+            activeIdx = (activeIdx + step + total) % total;
+            slides[activeIdx].classList.remove('hidden');
+
+            deckContainer.setAttribute('data-active-index', activeIdx);
+            
+            const pager = deckContainer.querySelector('.flashcard-pager-label');
+            if (pager) pager.textContent = `${activeIdx + 1} / ${total}`;
+        }
+
+        async function triggerSynthesis(type, size = 3) {
+            const { combinedContent, imageAttachment } = getCombinedCheckedContext();
+            if (!combinedContent) {
+                showNotification("No input selected", "Please check at least one source file.", "error");
+                return;
+            }
+
+            const outLang = document.getElementById('outLangSelect').value;
+            const loaderBubbleId = 'synthesis-loader-' + Date.now();
+            
+            let processName = "Processing Request";
+            if (type === 'summarize') processName = `Synthesizing ${size} Summary`;
+            else if (type === 'mcq') processName = `Generating Interactive Practice Test (${size} Questions)`;
+            else if (type === 'mindmap') processName = 'Mapping Conceptual Relational Flow';
+            
+            renderChatBubble(`<div class="flex items-center gap-2"><i class="fa-solid fa-spinner animate-spin text-cyan-500 dark:text-cyan-400"></i> <span class="animate-pulse">${processName}...</span></div>`, false, loaderBubbleId);
+
+            try {
+                if (type === 'summarize') {
+                    const systemPrompt = `You are an academic accelerant. Formulate a summary of length/depth config: [${size}]. Focus on core conceptual definitions, critical milestones, and major takeaways. Output purely in clean, highly structured markdown layout.\n\nCRITICAL RULE: You MUST output the entire summary text in ${outLang}.`;
+                    const prompt = `Synthesize a comprehensive, high-contrast study summary for the loaded context:\n\n${combinedContent}`;
+                    
+                    const summary = await fetchGeminiWithBackoff(prompt, systemPrompt, imageAttachment);
+                    const collapsibleHtml = renderCollapsibleSummary(summary, outLang);
+                    const formattedHtml = `
+                        <div class="space-y-3" dir="${outLang === 'Arabic' ? 'rtl' : 'ltr'}">
+                            <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2 mb-2">
+                                <i class="fa-solid fa-file-invoice text-emerald-600 dark:text-emerald-400"></i>
+                                <span class="font-bold tracking-wider text-xs uppercase text-emerald-600 dark:text-emerald-400">Collapsible Summary (${size})</span>
+                            </div>
+                            <div class="mt-2 text-xs leading-relaxed max-w-none text-slate-800 dark:text-slate-300 font-sans">
+                                ${collapsibleHtml}
+                            </div>
+                        </div>
+                    `;
+
+                    const compId = registerComponent('summarize', formattedHtml);
+                    focusDockCallbacks['summarize'] = loaderBubbleId;
+
+                    const placeholderBubble = `
+                        <div class="space-y-3 p-3 bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-500/20 rounded-xl">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest flex items-center gap-1.5">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i> Generated ${size} Summary
+                                </span>
+                                <span class="text-[9px] font-mono text-slate-400 dark:text-slate-500 bg-white/20 px-1.5 py-0.5 rounded border border-emerald-500/10">Active Focus</span>
+                            </div>
+                            <p class="text-[11px] text-slate-600 dark:text-slate-400 leading-normal">
+                                ${currentLang === 'ar' ? 'تم إنشاء الملخص بنجاح وفتحه في وضع ملء الشاشة المعرفي للتركيز الفائق.' : 'Your collapsible summary is compiled and loaded on focus mode reader overlay to maximize retention.'}
+                            </p>
+                            <div class="flex gap-2 pt-1">
+                                <button onclick="launchFocusViewFromRegistry('${compId}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[10px] font-bold flex items-center gap-1 shadow-sm">
+                                    <i class="fa-solid fa-expand"></i> ${currentLang === 'ar' ? 'فتح شاشة التركيز' : 'Open Focus Reader'}
+                                </button>
+                                <button onclick="dockFocusedToChatFromRegistry('${compId}', '${loaderBubbleId}')" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 rounded-lg text-[10px] font-bold flex items-center gap-1 border border-slate-200 dark:border-slate-700">
+                                    <i class="fa-solid fa-anchor"></i> ${currentLang === 'ar' ? 'تثبيت في المحادثة' : 'Dock inline'}
+                                </button>
+                            </div>
+                        </div>
+                    `;
+
+                    updateChatBubble(loaderBubbleId, placeholderBubble);
+                    launchFocusView('summarize', formattedHtml, compId);
+
+                } else if (type === 'mcq') {
+                    let historyPrompt = generatedQuestionsHistory.length > 0 ? `\n\nCRITICAL REPETITION PREVENTION: Do NOT generate questions about these exact concepts or previously asked questions: ${JSON.stringify(generatedQuestionsHistory)}. Focus on other portions of the material to test new topics.` : "";
+
+                    const systemPrompt = `You are a testing coordinator. Output a practice test containing exactly ${size} challenging multiple choice questions in raw JSON format.
+Strict schema format:
+[ { "q": "Question?", "options": ["Opt 0", "Opt 1", "Opt 2", "Opt 3"], "correctIndex": 0, "explanation": "Rationale" } ]
+Do not return code block ticks or conversational text. Return pure JSON.${historyPrompt}\n\nCRITICAL RULE: You MUST write the JSON content entirely in ${outLang}.`;
+                    const prompt = `Construct exactly ${size} practice questions evaluating deep retention of the following document:\n\n${combinedContent}`;
+                    
+                    const rawResult = await fetchGeminiWithBackoff(prompt, systemPrompt, imageAttachment);
+                    const cleanJson = cleanJsonOutput(rawResult);
+                    const questions = JSON.parse(cleanJson);
+                    
+                    questions.forEach(q => {
+                        if (q.q && !generatedQuestionsHistory.includes(q.q)) generatedQuestionsHistory.push(q.q);
+                    });
+                    if (generatedQuestionsHistory.length > 30) generatedQuestionsHistory = generatedQuestionsHistory.slice(-30);
+
+                    quizSessionCounter++;
+                    const quizSessionId = `quiz-${quizSessionCounter}`;
+
+                    let quizHtml = `
+                        <div class="space-y-4 font-sans w-full max-w-2xl text-start quiz-container relative" data-quiz-session="${quizSessionId}" data-active-index="0" dir="${outLang === 'Arabic' ? 'rtl' : 'ltr'}">
+                            <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2 mb-2">
+                                <i class="fa-solid fa-circle-question text-cyan-600 dark:text-cyan-400"></i>
+                                <span class="font-bold tracking-wider text-xs uppercase text-cyan-600 dark:text-cyan-400">Interactive Practice Test (${size} Questions)</span>
+                            </div>
+                            <div class="relative min-h-[220px]">
+                    `;
+
+                    questions.forEach((q, idx) => {
+                        quizHtml += `
+                            <div class="quiz-question-slide ${idx === 0 ? '' : 'hidden'} flex flex-col justify-between" data-correct="${q.correctIndex}">
+                                <div class="flex items-center justify-between gap-4">
+                                    <button onclick="handleQuizSlide('${quizSessionId}', -1)" class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-850 hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center justify-center shrink-0 border border-slate-200 dark:border-slate-800 transition-colors">
+                                        <i class="fa-solid fa-chevron-left text-xs text-slate-500 dark:text-slate-400"></i>
+                                    </button>
+                                    <div class="flex-1 bg-white dark:bg-slate-900/50 p-5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 shadow-sm relative">
+                                        <p class="text-xs font-bold text-slate-900 dark:text-slate-100 mb-3">${idx + 1}. ${escapeHtml(q.q)}</p>
+                                        <div class="space-y-2">
+                                            ${q.options.map((opt, optIdx) => `
+                                                <label class="flex items-center gap-2.5 p-3 rounded-lg bg-white/25 dark:bg-slate-950/25 hover:bg-slate-50 dark:hover:bg-slate-900/60 cursor-pointer transition-colors text-[11px] border border-slate-200/50 dark:border-slate-850">
+                                                    <input type="radio" name="${quizSessionId}-q-${idx}" value="${optIdx}" class="accent-cyan-500 dark:accent-cyan-400">
+                                                    <span>${escapeHtml(opt)}</span>
+                                                </label>
+                                            `).join('')}
+                                        </div>
+                                        <div class="explanation-box hidden text-[10px] text-slate-600 dark:text-slate-400 p-2.5 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 mt-2">
+                                            <strong class="text-indigo-600 dark:text-indigo-400">EXPLANATION:</strong> ${escapeHtml(q.explanation)}
+                                        </div>
+                                    </div>
+                                    <button onclick="handleQuizSlide('${quizSessionId}', 1)" class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-850 hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center justify-center shrink-0 border border-slate-200 dark:border-slate-800 transition-colors">
+                                        <i class="fa-solid fa-chevron-right text-xs text-slate-500 dark:text-slate-400"></i>
+                                    </button>
+                                </div>
+                                <div class="flex items-center justify-between mt-4 px-12 shrink-0">
+                                    <button onclick="handleQuizSlide('${quizSessionId}', -1)" class="px-3 py-1 bg-slate-100 dark:bg-slate-850 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 text-[10px] rounded-md font-semibold transition-colors flex items-center gap-1">
+                                        <i class="fa-solid fa-arrow-left text-[9px]"></i> <span data-i18n="back">${i18nDict[currentLang].back}</span>
+                                    </button>
+                                    <span class="text-[10px] font-mono text-slate-400 dark:text-slate-500 quiz-pager-label">${idx + 1} / ${size}</span>
+                                    <button onclick="handleQuizSlide('${quizSessionId}', 1)" class="px-3 py-1 bg-slate-100 dark:bg-slate-850 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 text-[10px] rounded-md font-semibold transition-colors flex items-center gap-1">
+                                        <span data-i18n="next">${i18nDict[currentLang].next}</span> <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    quizHtml += `
+                            </div>
+                            <div class="pt-2 border-t border-slate-100 dark:border-slate-850 flex flex-col gap-2">
+                                <button onclick="gradeInlineQuiz(this, '${quizSessionId}')" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1">
+                                    <i class="fa-solid fa-clipboard-check"></i> <span data-i18n="submitQuiz">${i18nDict[currentLang].submitQuiz}</span>
+                                </button>
+                                <p class="quiz-score-indicator hidden font-mono text-xs text-center text-cyan-600 dark:text-cyan-400 font-bold mt-1"></p>
+                            </div>
+                        </div>
+                    `;
+
+                    const compId = registerComponent('mcq', quizHtml);
+                    focusDockCallbacks['mcq'] = loaderBubbleId;
+
+                    const placeholderBubble = `
+                        <div class="space-y-3 p-3 bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-500/20 rounded-xl">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest flex items-center gap-1.5">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i> Generated Practice Quiz (${size} Questions)
+                                </span>
+                                <span class="text-[9px] font-mono text-slate-400 dark:text-slate-500 bg-white/20 px-1.5 py-0.5 rounded border border-indigo-500/10">Active Focus</span>
+                            </div>
+                            <p class="text-[11px] text-slate-600 dark:text-slate-400 leading-normal">
+                                ${currentLang === 'ar' ? 'تم إنشاء المكون وفتحه في وضع ملء الشاشة للتركيز الفائق.' : 'Your practice diagnostic has been loaded into Full Screen focus mode for deep testing.'}
+                            </p>
+                            <div class="flex gap-2 pt-1">
+                                <button onclick="launchFocusViewFromRegistry('${compId}')" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-[10px] font-bold flex items-center gap-1 shadow-sm">
+                                    <i class="fa-solid fa-expand"></i> ${currentLang === 'ar' ? 'فتح شاشة التركيز' : 'Open Focus Screen'}
+                                </button>
+                                <button onclick="dockFocusedToChatFromRegistry('${compId}', '${loaderBubbleId}')" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 rounded-lg text-[10px] font-bold flex items-center gap-1 border border-slate-200 dark:border-slate-700">
+                                    <i class="fa-solid fa-anchor"></i> ${currentLang === 'ar' ? 'تثبيت في المحادثة' : 'Dock inline'}
+                                </button>
+                            </div>
+                        </div>
+                    `;
+
+                    updateChatBubble(loaderBubbleId, placeholderBubble);
+                    launchFocusView('mcq', quizHtml, compId);
+
+                } else if (type === 'mindmap') {
+                    const systemPrompt = `You are a concept mapping architect. Formulate a hierarchical mind map representing the core ideas, classifications, and dependencies of the material.
+Output ONLY raw JSON conforming strictly to this nested structure: { "name": "Central Subject Title", "children": [ { "name": "Subtopic A", "children": [ { "name": "Detail A1" } ] } ] }
+Do not write markdown backticks or conversational text. Return pure JSON written entirely in ${outLang}.`;
+                    const prompt = `Formulate a concept relationship diagram mapping these ideas:\n\n${combinedContent}`;
+
+                    const diagram = await fetchGeminiWithBackoff(prompt, systemPrompt, imageAttachment);
+                    const cleanJson = cleanJsonOutput(diagram);
+                    const parsedData = JSON.parse(cleanJson);
+                    
+                    let nodeIdCounter = 0;
+                    function initNode(node) {
+                        node.id = 'mm-node-' + (nodeIdCounter++);
+                        if (node.collapsed === undefined) node.collapsed = false;
+                        if (node.children) node.children.forEach(initNode);
+                    }
+                    initNode(parsedData);
+
+                    const mapHtml = ``; // Structural wrapper gets dynamically injected by drawMindmap
+                    const compId = registerComponent('mindmap', mapHtml, parsedData);
+                    focusDockCallbacks['mindmap'] = loaderBubbleId;
+
+                    const placeholderBubble = `
+                        <div class="space-y-3 p-3 bg-pink-50/50 dark:bg-pink-950/15 border border-pink-100 dark:border-pink-500/10 rounded-xl">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-pink-600 dark:text-pink-400 uppercase tracking-widest flex items-center gap-1.5">
+                                    <i class="fa-solid fa-bezier-curve"></i> Generated Mind Map
+                                </span>
+                                <span class="text-[9px] font-mono text-slate-400 dark:text-slate-500 bg-white/20 px-1.5 py-0.5 rounded border border-pink-500/10">Active Focus</span>
+                            </div>
+                            <p class="text-[11px] text-slate-600 dark:text-slate-400 leading-normal">
+                                ${currentLang === 'ar' ? 'تم إنشاء المكون وفتحه في وضع ملء الشاشة للتركيز الفائق.' : 'Your concept map is compiled and loaded on focus mode overlay. Click nodes dynamically to drill down into topics.'}
+                            </p>
+                            <div class="flex gap-2 pt-1">
+                                <button onclick="launchFocusViewFromRegistry('${compId}')" class="px-3 py-1.5 bg-pink-600 hover:bg-pink-500 text-white rounded-lg text-[10px] font-bold flex items-center gap-1 shadow-sm">
+                                    <i class="fa-solid fa-expand"></i> ${currentLang === 'ar' ? 'فتح شاشة التركيز' : 'Open Focus Screen'}
+                                </button>
+                                <button onclick="dockFocusedToChatFromRegistry('${compId}', '${loaderBubbleId}')" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 rounded-lg text-[10px] font-bold flex items-center gap-1 border border-slate-200 dark:border-slate-700">
+                                    <i class="fa-solid fa-anchor"></i> ${currentLang === 'ar' ? 'تثبيت في المحادثة' : 'Dock inline'}
+                                </button>
+                            </div>
+                        </div>
+                    `;
+
+                    updateChatBubble(loaderBubbleId, placeholderBubble);
+                    launchFocusView('mindmap', mapHtml, compId, parsedData);
+                }
+                
+                if (document.getElementById('userApiKey')?.value) showNotification("Synthesis Complete", "Processed response printed to focus screen.", "success");
+            } catch (error) {
+                console.error(error);
+                updateChatBubble(loaderBubbleId, `<p class="text-xs text-red-500 dark:text-red-400"><i class="fa-solid fa-triangle-exclamation"></i> Synthesis failed. Please ensure your Gemini Key is valid and active.</p>`);
+            }
+        }
+
+        async function generateFlashcards(size = 3) {
+            const { combinedContent, imageAttachment } = getCombinedCheckedContext();
+            if (!combinedContent) {
+                showNotification("No context selected", "Check at least one file source.", "error");
+                return;
+            }
+
+            const outLang = document.getElementById('outLangSelect').value;
+            const loaderBubbleId = 'flash-loader-' + Date.now();
+            renderChatBubble(`<div class="flex items-center gap-2"><i class="fa-solid fa-spinner animate-spin text-cyan-500 dark:text-cyan-400"></i> <span class="animate-pulse">Formulating concept flashcards...</span></div>`, false, loaderBubbleId);
+
+            let historyPrompt = generatedFlashcardsHistory.length > 0 ? `\n\nCRITICAL REPETITION PREVENTION: Do NOT generate flashcards for any of these exact terms/concepts: ${JSON.stringify(generatedFlashcardsHistory)}. Select completely different keywords.` : "";
+
+            const systemPrompt = `You are a study tools architect. Output exactly ${size} recall flashcards based on the source text in raw JSON format: [ { "front": "Term", "back": "Definition" } ]. Do not return code block ticks. Return pure JSON.${historyPrompt}\n\nCRITICAL RULE: Generate all text entirely in ${outLang}.`;
+            const prompt = `Formulate exactly ${size} key conceptual definitions based on this document:\n\n${combinedContent}`;
+
+            try {
+                const res = await fetchGeminiWithBackoff(prompt, systemPrompt, imageAttachment);
+                const cleaned = cleanJsonOutput(res);
+                const cards = JSON.parse(cleaned);
+
+                cards.forEach(card => {
+                    if (card.front && !generatedFlashcardsHistory.includes(card.front)) generatedFlashcardsHistory.push(card.front);
+                });
+                if (generatedFlashcardsHistory.length > 30) generatedFlashcardsHistory = generatedFlashcardsHistory.slice(-30);
+
+                deckSessionCounter++;
+                const deckId = `deck-${deckSessionCounter}`;
+
+                let flashHtml = `
+                    <div class="space-y-4 w-full max-w-xl text-start flashcard-deck-container" data-deck-id="${deckId}" data-active-index="0" dir="${outLang === 'Arabic' ? 'rtl' : 'ltr'}">
+                        <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2 mb-2">
+                            <i class="fa-solid fa-clone text-amber-600 dark:text-amber-400"></i>
+                            <span class="font-bold tracking-wider text-xs uppercase text-amber-600 dark:text-amber-400">Concept Flashcards (${size} Cards)</span>
+                        </div>
+                        <div class="relative min-h-[170px] select-none">
+                `;
+
+                cards.forEach((card, idx) => {
+                    const cardId = `flashcard-${Date.now()}-${idx}`;
+                    flashHtml += `
+                        <div class="flashcard-node-slide ${idx === 0 ? '' : 'hidden'} flex flex-col justify-between h-full">
+                            <div class="flex items-center justify-between gap-4">
+                                <button onclick="handleFlashcardSlide('${deckId}', -1)" class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-850 hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center justify-center shrink-0 border border-slate-200 dark:border-slate-800 transition-colors">
+                                    <i class="fa-solid fa-chevron-left text-xs text-slate-500 dark:text-slate-400"></i>
+                                </button>
+                                <div class="flex-1 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 flex flex-col justify-center items-center text-center cursor-pointer min-h-[140px] hover:border-amber-400/40 transition-all shadow-md relative" onclick="flipFlashcard('${cardId}')">
+                                    <div id="${cardId}-front" class="flashcard-front text-xs font-bold text-slate-900 dark:text-slate-100 space-y-1">
+                                        <span class="block text-[8px] text-amber-600 dark:text-amber-400 font-mono tracking-wider uppercase font-sans">TAP TO REVEAL</span>
+                                        <p class="text-sm pt-2 font-sans">${escapeHtml(card.front)}</p>
+                                    </div>
+                                    <div id="${cardId}-back" class="flashcard-back hidden text-xs font-mono text-cyan-700 dark:text-cyan-400 space-y-1">
+                                        <span class="block text-[8px] text-indigo-600 dark:text-indigo-400 font-mono tracking-wider uppercase font-sans">DEFINITION / ANSWER</span>
+                                        <p class="text-xs pt-2 text-slate-700 dark:text-slate-200 leading-relaxed font-sans">${escapeHtml(card.back)}</p>
+                                    </div>
+                                </div>
+                                <button onclick="handleFlashcardSlide('${deckId}', 1)" class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-850 hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center justify-center shrink-0 border border-slate-200 dark:border-slate-800 transition-colors">
+                                    <i class="fa-solid fa-chevron-right text-xs text-slate-500 dark:text-slate-400"></i>
+                                </button>
+                            </div>
+                            <div class="flex items-center justify-between mt-4 px-12 shrink-0">
+                                <button onclick="handleFlashcardSlide('${deckId}', -1)" class="px-3 py-1 bg-slate-100 dark:bg-slate-850 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 text-[10px] rounded-md font-semibold transition-colors flex items-center gap-1">
+                                    <i class="fa-solid fa-arrow-left text-[9px]"></i> <span data-i18n="back">${i18nDict[currentLang].back}</span>
+                                </button>
+                                <span class="text-[10px] font-mono text-slate-400 dark:text-slate-500 flashcard-pager-label">${idx + 1} / ${size}</span>
+                                <button onclick="handleFlashcardSlide('${deckId}', 1)" class="px-3 py-1 bg-slate-100 dark:bg-slate-850 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 text-[10px] rounded-md font-semibold transition-colors flex items-center gap-1">
+                                    <span data-i18n="next">${i18nDict[currentLang].next}</span> <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                flashHtml += `</div></div>`;
+
+                const compId = registerComponent('flashcards', flashHtml);
+                focusDockCallbacks['flashcards'] = loaderBubbleId;
+
+                const placeholderBubble = `
+                    <div class="space-y-3 p-3 bg-amber-50/50 dark:bg-amber-950/15 border border-amber-100 dark:border-amber-500/10 rounded-xl">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest flex items-center gap-1.5">
+                                <i class="fa-solid fa-clone"></i> Concept Flashcards (${size} Cards)
+                            </span>
+                            <span class="text-[9px] font-mono text-slate-400 dark:text-slate-500 bg-white/20 px-1.5 py-0.5 rounded border border-amber-500/10">Active Focus</span>
+                        </div>
+                        <p class="text-[11px] text-slate-600 dark:text-slate-400 leading-normal">
+                            ${currentLang === 'ar' ? 'تم إنشاء البطاقات بنجاح وعرضها ملء الشاشة.' : 'Active recall cards populated successfully. Access focus view for diagnostic flipping.'}
+                        </p>
+                        <div class="flex gap-2 pt-1">
+                            <button onclick="launchFocusViewFromRegistry('${compId}')" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-[10px] font-bold flex items-center gap-1 shadow-sm">
+                                <i class="fa-solid fa-expand"></i> ${currentLang === 'ar' ? 'عرض ملء الشاشة' : 'Open Focus Screen'}
+                            </button>
+                            <button onclick="dockFocusedToChatFromRegistry('${compId}', '${loaderBubbleId}')" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 rounded-lg text-[10px] font-bold flex items-center gap-1 border border-slate-200 dark:border-slate-700">
+                                <i class="fa-solid fa-anchor"></i> ${currentLang === 'ar' ? 'تثبيت في المحادثة' : 'Dock inline'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                updateChatBubble(loaderBubbleId, placeholderBubble);
+                launchFocusView('flashcards', flashHtml, compId);
+
+            } catch (err) {
+                console.error(err);
+                updateChatBubble(loaderBubbleId, `<p class="text-xs text-red-500 dark:text-red-400 font-sans">Failed generating flashcard deck. Ensure API key is accurate.</p>`);
+            }
+        }
+
+        async function handleSendChat(event) {
+            if (event) event.preventDefault();
+            
+            const chatInputEl = document.getElementById('chatInput');
+            if (!chatInputEl) return;
+            const text = chatInputEl.value.trim();
+            if (!text) return;
+
+            renderChatBubble(text, true);
+            chatInputEl.value = '';
+            adjustTextareaHeight();
+
+            const sendBtn = document.getElementById('chatSendBtn');
+            if (sendBtn) {
+                sendBtn.disabled = true;
+                sendBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin text-xs"></i>`;
+            }
+
+            const outLang = document.getElementById('outLangSelect').value;
+            let finalSystemPrompt = `You are StudyLM, a helpful, analytical AI study assistant powered by Gemini 2.5 Flash. Provide high-quality explanations, outline complex themes elegantly in markdown bullet points, list-structures, or markdown tables. Keep your style concise, helpful, and readable.\n\nCRITICAL RULE: You MUST output all your responses completely in ${outLang}.`;
+            
+            const { combinedContent, imageAttachment } = getCombinedCheckedContext();
+            const promptPayload = combinedContent ? 
+                `Analyze the attached resources to answer this student's query.\n\nResource Context:\n${combinedContent}\n\nStudent Query: ${text}` : text;
+
+            const loaderId = 'ai-loader-' + Date.now();
+            renderChatBubble('<span class="animate-pulse">Consulting Gemini 2.5 Flash cluster...</span>', false, loaderId);
+
+            try {
+                const answer = await fetchGeminiWithBackoff(promptPayload, finalSystemPrompt, imageAttachment);
+                const loaderElem = document.getElementById(loaderId);
+                if (loaderElem) {
+                    loaderElem.innerHTML = `
+                        <p class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 mb-1 tracking-wider">GEMINI 2.5 FLASH</p>
+                        <div class="prose prose-invert text-xs leading-relaxed max-w-none text-slate-800 dark:text-slate-300 font-sans" dir="${outLang === 'Arabic' ? 'rtl' : 'ltr'}">${renderMarkdown(answer)}</div>
+                    `;
+                }
+                const chatFeedEl = document.getElementById('chatFeed');
+                if (chatFeedEl) chatFeedEl.scrollTop = chatFeedEl.scrollHeight;
+            } catch (error) {
+                const loaderElem = document.getElementById(loaderId);
+                if (loaderElem) {
+                    loaderElem.innerHTML = `
+                        <p class="text-[10px] font-bold text-red-600 dark:text-red-400 mb-1">SYSTEM EXCEPTION</p>
+                        <p class="text-xs text-red-500 dark:text-red-300">Connection error. Verify your Gemini Key configurations.</p>
+                    `;
+                }
+            } finally {
+                if (sendBtn) {
+                    sendBtn.disabled = false;
+                    sendBtn.innerHTML = `<i class="fa-solid fa-arrow-up text-sm"></i>`;
+                }
+            }
+        }
+
+        function renderChatBubble(content, isUser, specialId = null) {
+            const bubble = document.createElement('div');
+            bubble.className = `flex gap-3 max-w-[90%] items-start ${isUser ? 'ms-auto' : 'me-auto'}`;
+            if (specialId) bubble.id = specialId;
+
+            if (isUser) {
+                bubble.innerHTML = `
+                    <div class="bg-indigo-100 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-500/20 rounded-2xl rounded-te-none p-3 text-slate-800 dark:text-slate-200 shadow-sm">
+                        <p class="text-[10px] font-bold text-cyan-600 dark:text-cyan-400 mb-1 tracking-wider font-sans">STUDENT USER</p>
+                        <p class="text-xs leading-relaxed whitespace-pre-wrap font-sans">${escapeHtml(content)}</p>
+                    </div>
+                    <div class="w-7 h-7 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center shrink-0 shadow-sm">
+                        <i class="fa-solid fa-user text-xs text-cyan-600 dark:text-cyan-400"></i>
+                    </div>
+                `;
+            } else {
+                bubble.innerHTML = `
+                    <div class="w-7 h-7 rounded-lg bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center border border-indigo-200 dark:border-indigo-500/30 shrink-0 shadow-sm">
+                        <i class="fa-solid fa-robot text-xs"></i>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl rounded-ts-none p-3 text-slate-800 dark:text-slate-300 w-full overflow-hidden shadow-sm">
+                        <p class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 mb-1 tracking-wider font-sans">GEMINI 2.5 FLASH</p>
+                        <div class="text-xs leading-relaxed max-w-none text-slate-800 dark:text-slate-300 font-sans">${content}</div>
+                    </div>
+                `;
+            }
+
+            const chatFeedEl = document.getElementById('chatFeed');
+            if (chatFeedEl) {
+                chatFeedEl.appendChild(bubble);
+                chatFeedEl.scrollTop = chatFeedEl.scrollHeight;
+            }
+        }
+
+        function updateChatBubble(id, content) {
+            const bubble = document.getElementById(id);
+            if (!bubble) return;
+            const container = bubble.querySelector('.bg-white, .bg-slate-900');
+            if (container) {
+                container.innerHTML = `
+                    <p class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 mb-1 tracking-wider font-sans">GEMINI 2.5 FLASH</p>
+                    <div class="text-xs leading-relaxed max-w-none text-slate-800 dark:text-slate-300 font-sans">${content}</div>
+                `;
+            }
+            const chatFeedEl = document.getElementById('chatFeed');
+            if (chatFeedEl) chatFeedEl.scrollTop = chatFeedEl.scrollHeight;
+        }
+
+        function useSuggestedPrompt(text) {
+            const chatInputEl = document.getElementById('chatInput');
+            if (chatInputEl) {
+                chatInputEl.value = text;
+                adjustTextareaHeight();
+                chatInputEl.focus();
+            }
+        }
+
+        function clearChatFeed() {
+            const chatFeedEl = document.getElementById('chatFeed');
+            if (chatFeedEl) {
+                chatFeedEl.innerHTML = `
+                    <div class="flex gap-4 max-w-[90%] me-auto items-start">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center border border-indigo-200 dark:border-indigo-500/30 shrink-0 shadow-sm">
+                            <i class="fa-solid fa-robot text-xs"></i>
+                        </div>
+                        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl rounded-ts-none p-4 text-slate-800 dark:text-slate-300 w-full shadow-sm">
+                            <p class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 mb-1 tracking-wider uppercase font-sans">GEMINI 2.5 FLASH</p>
+                            <p class="text-xs leading-relaxed font-sans">Chat space initialized. I have complete access to checked sources.</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function adjustTextareaHeight() {
+            const chatInputEl = document.getElementById('chatInput');
+            if (chatInputEl) {
+                chatInputEl.style.height = 'auto';
+                chatInputEl.style.height = (chatInputEl.scrollHeight) + 'px';
+            }
+        }
+
+        function handleTextareaEnter(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSendChat();
+            }
+        }
+
+        function cleanJsonOutput(raw) {
+            if (!raw) return "[]";
+            return raw.replace(/```json/gi, '').replace(/```/gi, '').trim();
+        }
+
+        function renderMarkdown(md) {
+            if (!md) return "";
+            let html = md;
+            html = html.replace(/^### (.*$)/gim, '<h4 class="font-bold text-cyan-600 dark:text-cyan-400 text-xs mt-3 mb-1 uppercase tracking-wider">$1</h4>');
+            html = html.replace(/^## (.*$)/gim, '<h3 class="font-bold text-slate-900 dark:text-slate-100 text-sm mt-4 mb-1.5 uppercase tracking-wide">$1</h3>');
+            html = html.replace(/^# (.*$)/gim, '<h2 class="font-bold text-slate-900 dark:text-slate-100 text-base mt-5 mb-2">$1</h2>');
+            html = html.replace(/\*\*(.*?)\*\*/g, '<strong class="text-slate-900 dark:text-white font-semibold">$1</strong>');
+            html = html.replace(/\*(.*?)\*/g, '<em class="text-slate-600 dark:text-slate-300">$1</em>');
+            html = html.replace(/`([^`]+)`/g, '<code class="bg-slate-100 dark:bg-slate-950 text-cyan-600 dark:text-cyan-400 px-1 py-0.5 rounded border border-slate-200 dark:border-slate-800 text-[11px] font-mono">$1</code>');
+            html = html.replace(/^\s*[\-\*]\s*(.*$)/gim, '<li class="list-disc list-inside ms-2 text-slate-700 dark:text-slate-300">$1</li>');
+            html = html.replace(/\n/g, '<br>');
+            return html;
+        }
+
+        function escapeHtml(str) {
+            if (!str) return "";
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeFocusView();
+                toggleSettingsModal(false);
+                toggleRawNoteModal(false);
+            }
+        });
+
+        updateVaultList();
+    </script>
+</body>
+</html>
